@@ -84,7 +84,7 @@ ln -s /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/MxB_92_RILs_pheno
 
 == Read mapping ==
 
-. We will need the tools https://github.com/lh3/bwa[BWA] and http://www.htslib.org/doc/samtools.html[samtools] for read mapping and processing of alignment records, respectively.
+. We will use the tools https://github.com/lh3/bwa[BWA] and http://www.htslib.org/doc/samtools.html[samtools] for read mapping and processing of alignment records, respectively.
 +
 [source,sh]
 ----
@@ -95,9 +95,10 @@ module load bwa samtools
 +
 [source,sh]
 ----
-ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta' // <1>
 bwa shm $ref
 ----
+<1> We use the https://academic.oup.com/plcell/article/33/6/1888/6169005[MorexV3] reference genome sequence.
 
 . We will first run a toy example with 10,000 reads of the Morex sample.
 +
@@ -124,7 +125,7 @@ bwa mem $ref Morex_10k.fastq | samtools sort > Morex_10k.bam
 tmux bash
 ----
 
-. Try out TMUX functionality.
+. Try out tmux functionality.
 +
 [source,sh]
 ----
@@ -133,7 +134,7 @@ tmux detach
 tmux attach
 ----
 
-. Run the mapping for all samples.
+. Map all samples.
 +
 [source,sh]
 ----
@@ -211,7 +212,7 @@ fvcf='bcftools_SNP_calling_filtered.vcf'
 
 $filter --vcf $vcf --dphom 2 --dphet 4 --minmaf 0.2 --minpresent 0.9 --minhomp 0.9 > $fvcf // <1>
 ----
-<1> We keep homozygous genotype calls if they have at least two supporting reads; heterozygous calls are accepted if they are supported by four reads. SNPs with a minor allele frequency below 20 % or fewer than 90 % present calls or fewer than 90 % homozyous calls are discarded.
+<1> We keep homozygous genotype calls if they have at least two supporting reads; heterozygous calls are accepted if they are supported by no fewer than four reads. SNPs with a minor allele frequency below 20 % or less than 90 % present calls or less than 90 % homozyous calls are discarded.
 
 . Change the column names to match the row names in the phenotype table.
 +
@@ -223,7 +224,7 @@ bcftools reheader -s new_sample_names.txt $fvcf > bcftools_SNP_calling_filtered_
 grep -v '^##' bcftools_SNP_calling_filtered_newNames.vcf | column -t | less -S
 ----
 
-== Import the data into R/qtl
+== Import the genetic variant matrix into R
 
 . Start R. 
 +
@@ -340,7 +341,7 @@ readRDS("mxb_physical.Rds") -> mxb_physical
 has obviated the need for linkage map construction in mouse;
 the same applies to barley. 
 Although marker order is known, constructing a linkage map from scratch is a means of quality control. 
-If there are issues with the data, geneitc the map will be odd.
+If there are issues with the data, genetic the map will be off the mark.
 
 . A map off the cuff is not too bad. The only worry is that it's about a fifth longer than expected.
 +
@@ -540,4 +541,6 @@ pdf("plot_pxg.pdf")
 plotPXG(mxb, pheno.col=1, marker=mar)
 dev.off()
 ----
+
+. Check by BLAST how close the top marker is to the causal gene (VRS1). GrainGenes offers https://wheat.pw.usda.gov[a web-based BLAST].
 
