@@ -40,8 +40,11 @@ hostname // <1>
 . https://stanford-rc.github.io/docs-earth/docs/slurm-basics[SLURM] is widely used scheduling system. 
 A brief documenation is available https://slurm-web.ipk-gatersleben.de/wiki/doku.php?id=start[here], 
 and here's an even shorter https://slurm-web.ipk-gatersleben.de/wiki/lib/exe/fetch.php?media=slurm:slurm_flyer.pdf[cheat sheet].
-
++
 IMPORTANT: Login nodes are not for computing!
++
+. You will see the prompt of the UNIX command-line interpreter, the https://en.wikipedia.org/wiki/Unix_shell[shell].
+It is called "shell" because it executes commands that do not belong to operating system, the "kernel".
 
 == Set up your analysis directory  ==
 
@@ -82,7 +85,7 @@ pwd // <1>
 
 ln -s /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/MxB_92_RILs_phenotypes.csv .
 ----
-<1> Check that you in your working directory (`/filer/projekte/mxb_tutorial/mascher/gbs`)
+<1> Check that you are in your working directory (`/filer/projekte/mxb_tutorial/USER/gbs`).
 
 == Read mapping ==
 
@@ -196,13 +199,14 @@ bamlist='bam_list.txt'
 vcf='bcftools_SNP_calling.vcf' // <2>
 
 bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 --annotate AD \#<3>
- | bcftools view -i 'INFO/DP > 100' \#<4>
+ | bcftools view -i 'INFO/DP > 100' \#<4><5>
  | bcftools call --consensus-caller --variants-only --output $vcf
 ----
 <1> The variant calling will run for a couple of hours, so it's best to protect it with `tmux`.
 <2> Output file in https://en.wikipedia.org/wiki/Variant_Call_Format[variant call format] (VCF). https://samtools.github.io/hts-specs/VCFv4.2.pdf[Here] are the specifications of the VCF format.
-<3> We ignore insertions and deletions (`--skip-indels`), consider only SNPs with a quality score no smaller than 20 (`--min-MQ 20`) and add allelic depth (`--annotate AD`) information for all genotype calls.
+<3> We ignore insertions and deletions (`--skip-indels`), consider only SNPs with a quality score no smaller than 20 (`--min-MQ 20`) and add allelic depth information (`--annotate AD`) for all genotype calls.
 <4> Remove sites with fewer than 100 reads across all samples. We are only interested in sites that have at least two supporting reads in nine tenths of the samples.
+<5> The backslash \ character is used to split long commands across multiple lines.  When pasting the commands or editing them, make sure that no white space follows the backslash.  Otherwise, the shell will interpret the lines as belonging to different commands. Also multi-line commands do not toleate intervening command line (starting the the hash sign #).
 
 . Filter the variant calls.
 +
@@ -232,7 +236,7 @@ grep -v '^##' bcftools_SNP_calling_filtered_newNames.vcf | column -t | less -S
 +
 [source,sh]
 ----
-module load 
+module load R
 R #use R --vanilla to skip your ~/.Rprofile
 ----
 
@@ -275,7 +279,7 @@ convert_vcf_to_genfile(vcf, genfile, samples, founders) // <1>
 cmd <- "sed -Ei '1{p; s/id|chr.H://g; h; d}; 2G'" // <1>
 paste(cmd, genfile) |> system() // <2><3>
 ----
-<1> The `sed` command retrieves the genomic coordinates from the first line and inserts them as a new line after line 2.
+<1> The https://www.gnu.org/software/sed/manual/sed.html#Introduction[sed] command retrieves the genomic coordinates from the first line and inserts them as a new line after line 2.
 This could also be achieved with a text editor. The command, at the cost of arcanity, forgoes error-prone manual editing.
 <2> The `sed` command is called from inside R and modifies the file in place. 
 <3> Alternatively, you write this command as `system(paste(cmd, genfile))`. Before R version 4.0 (or so), this was the only way to do it. The pipe-like syntax is a recent addition to R.
@@ -460,12 +464,14 @@ names(which(cc < 0)) -> flip.chr
 flip.order(mxb, flip.chr) -> mxb
 ----
 
+////
 . `summary_map()` complains about co-segregating markers.
 +
 [source,sh]
 ----
 jittermap(mxb) -> mxb
 ----
+////
 
 . Plot the update alignment and graphical genotypes.
 +
@@ -514,7 +520,7 @@ summary(operm, alpha=c(0.05, 0.2))
 summary(out, perms=operm, pvalues=TRUE)
 ----
 <1> Values for binary traits have to be zero or one.
-<2> Perform a single-QTL genome scan using the marker regression (mr) method.
+<2> Perform a single-QTL genome scan using the https://link.springer.com/article/10.1007/BF00223708[marker regression] (mr) method.
 <3> Run a permutation test to get p-values and significance threshold.
 
 . Plot the LOD scores along the genome.
