@@ -2,8 +2,7 @@
 :source-highlighter: rouge
 :numbered:
 :icons: font
-:toc:
-:toc-placement!:
+:toc: left
 :important-caption: :heavy_exclamation_mark:
 
 = Mapping traits in biparental populations with genotyping-by-sequencing data
@@ -19,8 +18,6 @@ image::https://bitbucket.org/tritexassembly/tritexassembly.bitbucket.io/raw/9375
 ////
 
 image::flowchart.png[scaledwidth="75%", align=center]
-
-toc::[]
 
 == Open a UNIX shell
 
