@@ -1,8 +1,10 @@
 :language: r
 :source-highlighter: rouge
-:toc: left
 :numbered:
 :icons: font
+:toc:
+:toc-placement!:
+
 
 = Genotyping-by-sequencing of biparental populations to map traits
 
@@ -10,10 +12,13 @@
 <link rel="stylesheet"  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.1.0/css/font-awesome.min.css">
 ++++
 
+Preamble
 
 [#img-overview]
 .Workflow of the GBS analysis pipeline. 
 image::https://bitbucket.org/tritexassembly/tritexassembly.bitbucket.io/raw/9375957ff5f1763b1ce11d090919a76de9d7bf7a/tritex_overview.jpg[]
+
+toc::[]
 
 == Open a UNIX shell
 
