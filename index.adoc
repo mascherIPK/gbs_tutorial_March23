@@ -1,0 +1,504 @@
+:language: r
+:source-highlighter: rouge
+:toc: left
+:numbered:
+:icons: font
+
+= Genotyping-by-sequencing of biparental populations to map traits
+
+++++
+<link rel="stylesheet"  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.1.0/css/font-awesome.min.css">
+++++
+
+
+[#img-overview]
+.Workflow of the GBS analysis pipeline. 
+image::https://bitbucket.org/tritexassembly/tritexassembly.bitbucket.io/raw/9375957ff5f1763b1ce11d090919a76de9d7bf7a/tritex_overview.jpg[]
+
+== Open a UNIX shell
+
+. Connect with https://en.wikipedia.org/wiki/PuTTY[PuTTY] to our SLURM login node, slurm.ipk-gatersleben.de.
+
+. Obtain a Kerberos ticket, allocate an interactive session with https://slurm.schedmd.com/salloc.html[salloc].
++
+[source,sh]
+----
+kinit
+auks -a
+salloc --auks=yes -p cpu -c 4 --mem 10G #change cpu to queue for students
+hostname // <1>
+----
+<1> Check that you are on one of the SLURM compute nodes.
+
+. https://stanford-rc.github.io/docs-earth/docs/slurm-basics[SLURM] is widely used scheduling system. 
+A brief documenation is available https://slurm-web.ipk-gatersleben.de/wiki/doku.php?id=start[here], 
+and here's an even shorter https://slurm-web.ipk-gatersleben.de/wiki/lib/exe/fetch.php?media=slurm:slurm_flyer.pdf[cheat sheet].
+
+. Login nodes are not for computing!
+
+== Set up your analysis directory  ==
+
+. Let's have a look at the GBS data.
++
+[source,sh]
+----
+cd /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201
+cd data
+ls data
+ls -lhS gbs_reads | less
+man ls
+du -c gbs_reads
+----
+
+. Take at a look at the phenotypes. There are two binary traits: lateral spikelet fertility (commonly referred to in barley as row type) and presence of barbs on the awns (awn roughness).
++
+[source,sh]
+----
+less MxB_92_RILs_phenotypes.csv
+----
+
+. Create your working directory and change into it.
++
+[source,sh]
+----
+cd /filer/projekte/mxb_tutorial #does not work yet
+mkdir mascher/gbs
+cd mascher/gbs // <1>
+----
+<1> Change `mascher` to your name.
+
+. Create symbolic links to the GBS reads.
++
+[source,sh]
+----
+pwd // <1>
+
+ln -s /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/MxB_92_RILs_phenotypes.csv .
+----
+<1> Check that you in your working directory (`/filer/projekte/mxb_tutorial/mascher/gbs`)
+
+== Read mapping ==
+
+. We will need the tools https://github.com/lh3/bwa[BWA] and http://www.htslib.org/doc/samtools.html[samtools] for read mapping and processing of alignment records, respectively.
++
+[source,sh]
+----
+module load bwa samtools
+----
+
+. Load the BWA index into shared memory. This step can be skipped, but pre-loadeding the index makes mapping a lot faster.
++
+[source,sh]
+----
+ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+bwa shm $ref
+----
+
+. We will first run a toy example with 10,000 reads of the Morex sample.
++
+[source,sh]
+----
+zcat gbs_reads/Morex.fastq.gz | head -n 40000 > Morex_10k.fastq
+bwa mem $ref Morex_10k.fastq > Morex_10k.sam <1>
+samtools sort Morex_10k.sam > Morex_10k.bam <1>
+samtools view Morex_10k.bam | less -S
+----
+<1> Alignments are stored in the https://en.wikipedia.org/wiki/SAM_(file_format)[Sequence Alignment Map format] (SAM) or its binary equivalent BAM.
+
+. Combine mapping mapping and sorting into one command.
++
+[source,sh]
+----
+bwa mem $ref Morex_10k.fastq | samtools sort > Morex_10k.bam
+----
+
+. Open a new SSH session on the slurm-login node. Start https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/[tmux] to keep your commands running in the background. Then start an interactive SLURM session
++
+[source,sh]
+----
+tmux bash
+----
+
+. Try out TMUX functionality.
++
+[source,sh]
+----
+tmux ls
+tmux detach 
+tmux attach
+----
+
+. Run the mapping for all samples.
++
+[source,sh]
+----
+ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+for i in gbs_reads/*fastq.gz; do
+ name=`echo $i | cut -d . -f 1` // <1>
+ bwa mem -t 4 $ref $i | samtools sort > $name.bam
+done 2> bwa.err
+----
+<1> Strip the extension: Morex.fastq.gz become Morex.
+
+. If you forget to start `bwa` inside a `tmux` session, there is no way you prevent your job from aborting when you exit when you shutdown your laptop. Tough luck.
+
+. Calculate mapping rates for all samples.
++
+[source,sh]
+----
+for i in gbs_reads/*bam; do
+ name=`basename $i | cut -d . -f 1`
+ count=`samtools view -cq 20 $i`
+ echo $name $count
+done > mapped_reads.txt
+----
+
+== Variant calling and filtration ==
+
+. Get a list of all BAM files.
++
+[source,sh]
+----
+ls gbs_reads/*bam | sort > bam_list.txt
+----
+
+. Combine the raw reads counts and the mapping rates into one table.
++
+[source,sh]
+----
+sort fastq_read_counts.txt > tmp1 // <1>
+sort mapped_reads.txt > tmp2 // <1>
+
+join tmp1 tmp2 | awk '{print $0,$3/$2*100}' | sort -nk 4 | column -t > mapping_stats.txt // <2><3>
+
+rm -f tmp1 tmp2
+----
+<1> To combine two lists with https://linux.die.net/man/1/join[join], both lists need to be sorted on the common ID column.
+<2> We use https://www.tutorialspoint.com/awk/index.htm[AWK] to calculate the proportion of mapped reads.
+<3> https://linux.die.net/man/1/column[column] is used to align columns.
+
+. Run the variant calling with https://samtools.github.io/bcftools/howtos/index.html[bcftools].
++
+[source,sh]
+----
+tmux // <1>
+module load bcftools
+ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+bamlist='bam_list.txt'
+vcf='bcftools_SNP_calling.vcf' // <2>
+
+bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 --annotate AD \#<3>
+ | bcftools view -i 'INFO/DP > 100' \#<4>
+ | bcftools call --consensus-caller --variants-only --output $vcf
+----
+<1> The variant calling will run for a couple of hours, so it's best to protect it with `tmux`.
+<2> Output file in https://en.wikipedia.org/wiki/Variant_Call_Format[variant call format] (VCF). https://samtools.github.io/hts-specs/VCFv4.2.pdf[Here] are the specifications of the VCF format.
+<3> We ignore insertions and deletions (`--skip-indels`), consider only SNPs with a quality score no smaller than 20 (`--min-MQ 20`) and add allelic depth (`--annotate AD`) information for all genotype calls.
+<4> Remove sites with fewer than 100 reads across all samples. We are only interested in sites that have at least two supporting reads in nine tenths of the samples.
+
+. Filter the variant calls.
++
+[source, sh]
+----
+filter='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/scripts/filter_vcf.zsh'
+vcf='bcftools_SNP_calling.vcf'
+fvcf='bcftools_SNP_calling_filtered.vcf'
+
+$filter --vcf $vcf --dphom 2 --dphet 4 --minmaf 0.2 --minpresent 0.9 --minhomp 0.9 > $fvcf // <1>
+----
+<1> We keep homozygous genotype calls if they have at least two supporting reads; heterozygous calls are accepted if they are supported by four reads. SNPs with a minor allele frequency below 20 % or fewer than 90 % present calls or fewer than 90 % homozyous calls are discarded.
+
+. Change the column names to match the row names in the phenotype table.
++
+[source,sh]
+----
+less MxB_92_RILs_phenotypes.csv
+bcftools query -l $fvcf | cut -d / -f 2 | cut -d . -f 1 > new_sample_names.txt
+bcftools reheader -s new_sample_names.txt $fvcf > bcftools_SNP_calling_filtered_newNames.vcf
+grep -v '^##' bcftools_SNP_calling_filtered_newNames.vcf | column -t | less -S
+----
+
+== Import the data into R/qtl
+
+. Start R. We use version 3.5.1.
++
+[source,sh]
+----
+module load R/3.5.1
+R #use R --vanilla to skip your ~/.Rprofile
+----
+
+. R is a widely used programming language in data science. There are very many tutorials, e.g. https://www.statmethods.net/r-tutorial/index.html[this one].
+
+. Load the required libraries.
++
+[source,r]
+----
+.libPaths(c("/filer-dg/agruppen/seq_shared/mascher/Rlib/3.5.1")) // <1>
+
+library("qtl") // <2>
+library("ASMap") // <3> 
+library("utl") // <4>
+----
+<1> Set the path where the libraries are located.
+<2> https://rqtl.org[R/qtl] is package for QTL mapping. Several tutorials are available https://rqtl.org/tutorials/[here].
+<3> https://cran.r-project.org/web/packages/ASMap/ASMap.pdf[R/ASMap] is package for linkage map constuction. It implements the https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1000212[MSTMAP] algorithm.
+A detailed tutorial is available https://cran.r-project.org/web/packages/ASMap/vignettes/asmapvignette.pdf[here].
+<4> https://github.com/gact/utl[utl] provides utility functions for R/qtl, one of which we use to convert VCF to R/qtl format.
+
+. Convert the VCF to R/qtl format. Example files are found https://rqtl.org/sampledata/[here]. 
++
+[source,r]
+----
+vcf <- 'bcftools_SNP_calling_filtered_newNames.vcf'
+ids <- paste(read.table("new_sample_names.txt", head=F)[, 1])
+genfile <- 'bcftools_SNP_calling_geno.txt'
+founders <- c("Morex", "Barke")
+samples <- setdiff(ids, founders)
+
+convert_vcf_to_genfile(vcf, genfile, samples, founders) // <1>
+
+----
+<1> This function write a text file in "csvs" format to disk. The output filename is `genfile`. 
+
+. The conversion function doesn't use genomic coordinates, so markers are ordered correctly, but equidistant.
++
+[source,r]
+----
+cmd <- "sed -Ei '1{p; s/id|chr.H://g; h; d}; 2G'" // <1>
+paste(cmd, genfile) |> system() // <2><3>
+----
+<1> The `sed` command retrieves the genomic coordinates from the first line and inserts them as a new line after line 2.
+This could also be achieved with a text editor. The command, at the cost of arcanity, forgoes error-prone manual editing.
+<2> The `sed` command is called from inside R and modifies the file in place. 
+<3> Alternatively, you write this command as `system(paste(cmd, genfile))`. Before R version 4.0 (or so), this was the only way to do it. The pipe-like syntax is a recent addition to R.
+
+. Read the genotype and phenotype data into an R/qtl cross object.
++
+[source,r]
+----
+pheno <- 'MxB_92_RILs_phenotypes.csv'
+read.cross(format="csvs", genfile=genfile, phefile=pheno, crosstype= "f2",  genotypes=c("AA","AB","BB")) -> mxb
+convert2bcsft(mxb, BC.gen=0, F.gen=8,  estimate.map=F) -> mxb // <1>
+summary(mxb) 
+summary.map(mxb)
+----
+<1> A population of recombinant inbred lines is read in as "f2". `convert2bcsft()` is used to set the correct number of selfing generations.  See https://cran.r-project.org/web/packages/qtl/vignettes/bcsft.pdf[the documentation] of that function.  We disable the `estimate.map` option because we will rely on R/ASMap to construct a genetic linkage map. 
+
+. R/qtl offers several functions to extract basic information from "cross" objects.
++
+[source,r]
+----
+nind(mxb) # number of inviduals
+nchr(mxb) # number of chromosomes (actually linkage group)
+totmar(mxb) # total number of markers
+nmar(mxb) # number of markers per chromosome
+nphe(mxb) # number of phenotypes
+----
+
+. Plot a summary of the phenotypes. Copy the PDF file with https://winscp.net/eng/download.php[WinSCP] and take a look at it with the Acrobat Reader.
++
+[source,r]
+----
+pdf("plot_pheno.pdf") <1>
+plotPheno(mxb, pheno.col=1)
+plotPheno(mxb, pheno.col=2)
+dev.off() <2>
+----
+<1> Open a PDF file to plot to. The file is created in the current working directory.
+<2> Close the file (switch the plotting device off). Don't forget to call dev.off(). Otherweise, the PDF file will be empty or invalid.
+
+. Change the scale of the linkage map from basepairs to megabases and plot the distribution of markers along chromosomes.
++
+[source,r]
+----
+rescalemap(mxb, 1/1e6) -> mxb
+summary.map(mxb)
+
+pdf("plot_map.pdf")
+plot.map(mxb, main="Physical map", ylab="Location (Mb)")
+dev.off()
+----
+
+. Create a copy of the cross object with the physical map for later comparison.
++
+[source,r]
+----
+mxb -> mxb_physical
+saveRDS(mxb, "mxb_physical.Rds") // <1>
+readRDS("mxb_physical.Rds") -> mxb_physical 
+----
+<1> Any R object can be saved to and read from disk, respectively, with `saveRDS()` and `readRDS().`  
+
+== Quality control and linkage map construction ==
+
+. Karl Broman https://rqtl.org/tutorials/geneticmaps.pdf[pointed out] that a reference genome sequence 
+has obviated the need for linkage map construction in mouse;
+the same applies to barley. 
+Although marker order is known, constructing a linkage map from scratch is a means of quality control. 
+If there are issues with the data, geneitc the map will be odd.
+
+. A map off the cuff is not too bad. The only worry is that it's about a fifth longer than expected.
++
+[source,sh]
+----
+summary.map(mstmap(mxb, id="id"))
+----
+
+. Let's see if we can do better. The usual suscepts are bad markers and odd individuals.
+
+. Remove duplicated markers. If there are groups of markers that differ only in their patterns of missing data, keep only one representative.
++
+[source,sh]
+----
+findDupMarkers(mxb, exact.only=FALSE) -> dups // <1>
+unlist(dups) |> length()
+
+mxb <- drop.markers(mxb, unlist(dups))
+summary(mxb)
+----
+<1> exact.only=FALSE ignores differences in missingness.
+
+. Remove duplicated individuals.
++
+[source,sh]
+----
+cg <- comparegeno(mxb)
+
+pdf("compare_geno.pdf")
+hist(cg[lower.tri(cg)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes")
+dev.off()
+
+summary(cg, thresh=0.9) -> dups
+subset(mxb, ind=setdiff(samples, dups$inds2)) -> mxb
+----
+
+. Have a look at the https://link.springer.com/article/10.1007/BF00292322[graphical genotypes].
++
+[source,sh]
+----
+pdf("plot.geno.pdf")
+geno.image(mxb, col=c("white", "red", "violet", "blue")) // <1>
+dev.off()
+----
+<1> The default colors are red and green, which puts color blind people at a disadvantage.
+
+. We remove the odd individuals with lots of missing calls.
++
+[source,sh]
+----
+ntyped(mxb) |> sort() |> head(n=1) -> rm.ind
+
+subset(mxb, ind=setdiff(names(ntyped(mxb)), names(rm.ind))) -> mxb // <1>
+summary(mxb)
+----
+<1> `ntyped(mxb) |> names()` outputs a list of all individuals.
+
+. Thin the set of markers to keep one per megabase.
++
+[source,sh]
+----
+lapply(pull.map(mxb), function(i) pickMarkerSubset(i, 1)) |> unlist() -> keep
+
+drop.markers(mxb, setdiff(markernames(mxb), keep))  -> mxb
+
+pdf("plot.geno_1Mb.pdf")
+geno.image(mxb, col=c("white", "red", "violet", "blue"))
+dev.off()
+----
+
+. Look at the graphical genotypes again.
++
+[source,sh]
+----
+pdf("plot.geno_1Mb.pdf")
+geno.image(mxb, col=c("white", "red", "violet", "blue"))
+dev.off()
+----
+
+. Construct the map again.
++
+[source,sh]
+----
+mstmap.cross(mxb, id="id") -> mxb
+summary.map(mxb)
+----
+
+. Align the genetic to physical map.
++
+[source,sh]
+----
+pdf("align_maps.pdf")
+alignCross(mxb, maps=list(mxb_physical), layout=c(1,1))
+dev.off()
+----
+
+. Compute the rank correlation.
++
+[source,sh]
+----
+pull.map(mxb, as.table=T) -> a
+pull.map(mxb_physical, as.table=T) -> b
+merge(a, b, by=0) -> m // <1>
+sapply(split(m, m$chr.x), function(i) with(i, cor(pos.x, pos.y, method='s'))) -> cor // <2>
+----
+<1> `by=0` means merge by row names.
+<2> Use `method = 'p'` to compute the Pearson (linear) correlation.
+
+. Flip those linkage groups that are inverted relative to the reference orientation (short arm first). 
++
+[source,sh]
+----
+names(which(cc < 0)) -> flip.chr
+flip.order(mxb, flip.chr) -> mxb
+----
+
+. `summary_map()` complains about co-segregating markers.
++
+[source,sh]
+----
+jittermap(mxb) -> mxb
+----
+
+. Plot the update alignment and graphical genotypes.
++
+[source,sh]
+----
+pdf("align_maps.pdf")
+alignCross(mxb, maps=list(mxb_physical), layout=c(1,1))
+dev.off()
+
+pdf("plot.geno.mstmap.pdf")
+geno.image(mxb, col=c("white", "red", "violet", "blue"))
+dev.off()
+----
+
+. Compare genetic and physical map with connector plots.
++
+[source,sh]
+----
+rescalemap(mxb_physical, 1/5) -> mxb_physical // <1>
+
+pdf("plot_map.pdf")
+plotMap(mxb, mxb_physical)
+dev.off()
+----
+<1> Divide chromosome lengths by 5.
+
+== Trait mapping
+
+. Calculate https://smcclatchy.github.io/mapping/03-calc-genoprob/[genotype probabilities] conditional on the marker data.
++
+[source,sh]
+----
+calc.genoprob(mxb) -> mxb
+----
+
+. Run the "QTL" scan for the first phenotypes, lateral spikelet fertility, commonly known as row type.
+
+
+
+
+
+
+
