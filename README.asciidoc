@@ -6,7 +6,7 @@
 :toc-placement!:
 
 
-= Genotyping-by-sequencing of biparental populations to map traits
+= Mapping traits in biparental populations with genotyping-by-sequencing data
 
 ++++
 <link rel="stylesheet"  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.1.0/css/font-awesome.min.css">
@@ -14,9 +14,11 @@
 
 Preamble
 
+////
 [#img-overview]
 .Workflow of the GBS analysis pipeline. 
 image::https://bitbucket.org/tritexassembly/tritexassembly.bitbucket.io/raw/9375957ff5f1763b1ce11d090919a76de9d7bf7a/tritex_overview.jpg[]
+////
 
 toc::[]
 
@@ -39,7 +41,7 @@ hostname // <1>
 A brief documenation is available https://slurm-web.ipk-gatersleben.de/wiki/doku.php?id=start[here], 
 and here's an even shorter https://slurm-web.ipk-gatersleben.de/wiki/lib/exe/fetch.php?media=slurm:slurm_flyer.pdf[cheat sheet].
 
-. Login nodes are not for computing!
+IMPORTANT: Login nodes are not for computing!
 
 == Set up your analysis directory  ==
 
@@ -144,9 +146,9 @@ for i in gbs_reads/*fastq.gz; do
 done 2> bwa.err
 ----
 <1> Strip the extension: Morex.fastq.gz become Morex.
-
-. If you forget to start `bwa` inside a `tmux` session, there is no way you prevent your job from aborting when you exit when you shutdown your laptop. Tough luck.
-
++
+IMPORTANT: If you forget to start `bwa` inside a `tmux` session, there is no way to prevent your job from aborting when you shutdown your laptop. Tough luck.
++
 . Calculate mapping rates for all samples.
 +
 [source,sh]
