@@ -12,8 +12,6 @@
 <link rel="stylesheet"  href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.1.0/css/font-awesome.min.css">
 ++++
 
-Preamble
-
 ////
 [#img-overview]
 .Workflow of the GBS analysis pipeline. 
@@ -119,7 +117,7 @@ samtools view Morex_10k.bam | less -S
 bwa mem $ref Morex_10k.fastq | samtools sort > Morex_10k.bam
 ----
 
-. Open a new SSH session on the slurm-login node. Start https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/[tmux] to keep your commands running in the background. Then start an interactive SLURM session
+. Open a new PuTTY session on the slurm-login node. Start https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/[tmux] to keep your commands running in the background. Then start an interactive SLURM session.
 +
 [source,sh]
 ----
@@ -227,11 +225,11 @@ grep -v '^##' bcftools_SNP_calling_filtered_newNames.vcf | column -t | less -S
 
 == Import the data into R/qtl
 
-. Start R. We use version 3.5.1.
+. Start R. 
 +
 [source,sh]
 ----
-module load R/3.5.1
+module load 
 R #use R --vanilla to skip your ~/.Rprofile
 ----
 
@@ -241,13 +239,13 @@ R #use R --vanilla to skip your ~/.Rprofile
 +
 [source,r]
 ----
-.libPaths(c("/filer-dg/agruppen/seq_shared/mascher/Rlib/3.5.1")) // <1>
+.libPaths("/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/Rlibs/4.1.1") // <1>
 
 library("qtl") // <2>
 library("ASMap") // <3> 
 library("utl") // <4>
 ----
-<1> Set the path where the libraries are located.
+<1> Set the path where the R libraries are located.
 <2> https://rqtl.org[R/qtl] is package for QTL mapping. Several tutorials are available https://rqtl.org/tutorials/[here].
 <3> https://cran.r-project.org/web/packages/ASMap/ASMap.pdf[R/ASMap] is package for linkage map constuction. It implements the https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1000212[MSTMAP] algorithm.
 A detailed tutorial is available https://cran.r-project.org/web/packages/ASMap/vignettes/asmapvignette.pdf[here].
@@ -264,7 +262,6 @@ founders <- c("Morex", "Barke")
 samples <- setdiff(ids, founders)
 
 convert_vcf_to_genfile(vcf, genfile, samples, founders) // <1>
-
 ----
 <1> This function write a text file in "csvs" format to disk. The output filename is `genfile`. 
 
@@ -501,8 +498,46 @@ dev.off()
 calc.genoprob(mxb) -> mxb
 ----
 
-. Run the "QTL" scan for the first phenotypes, lateral spikelet fertility, commonly known as row type.
+. Run the "QTL" scan for the first phenotypes, row type.
++
+[source,r]
+----
+mxb$pheno$row_type <- ifelse(mxb$pheno$row_type == 2, 0, 1) // <1> 
 
+scanone(mxb, pheno.col=1, method="mr", model="binary") -> out // <2>
+operm <- scanone(mxb, method="mr", n.perm=1000, pheno.col=1) // <3>
+summary(operm, alpha=c(0.05, 0.2))
 
+summary(out, perms=operm, pvalues=TRUE)
+----
+<1> Values for binary traits have to be zero or one.
+<2> Perform a single-QTL genome scan using the marker regression (mr) method.
+<3> Run a permutation test to get p-values and significance threshold.
 
+. Plot the LOD scores along the genome.
++
+[source,r]
+----
+pdf("plot_row_type.pdf")
+plot(out)
+abline(h=3.5, col='red')
+dev.off()
+----
+
+. Get interval estimates.
++
+[source,r]
+----
+lodint(out, chr="2H", drop=2)
+----
+
+. Plot the phenotypes against the genotypes at the most highly associated marker.
++
+[source,r]
+----
+rownames(max(out)) -> mar
+pdf("plot_pxg.pdf")
+plotPXG(mxb, pheno.col=1, marker=mar)
+dev.off()
+----
 
