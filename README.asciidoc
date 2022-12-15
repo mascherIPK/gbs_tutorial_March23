@@ -1,10 +1,10 @@
 :language: r
-:source-highlighter: rouge
+:source-highlighter: pygment
 :numbered:
 :icons: font
 :toc:
 :toc-placement!:
-
+:important-caption: :heavy_exclamation_mark:
 
 = Mapping traits in biparental populations with genotyping-by-sequencing data
 
