@@ -260,16 +260,16 @@ A detailed tutorial is available https://cran.r-project.org/web/packages/ASMap/v
 [source,r]
 ----
 vcf <- 'bcftools_SNP_calling_filtered_newNames.vcf'
-ids <- paste(read.table("new_sample_names.txt", head=F)[, 1])
-genfile <- 'bcftools_SNP_calling_geno.txt'
+ids <- read.table("new_sample_names.txt", head=F)[, 1]
+genfile <- 'bcftools_SNP_calling_geno.csv'
 founders <- c("Morex", "Barke")
 samples <- setdiff(ids, founders)
 
 convert_vcf_to_genfile(vcf, genfile, samples, founders) // <1>
 ----
-<1> This function write a text file in "csvs" format to disk. The output filename is `genfile`. 
+<1> This function writes a text file in R/qtl's "csvs" format to disk. The output filename is `genfile`. 
 
-. The conversion function doesn't use genomic coordinates, so markers are ordered correctly, but equidistant.
+. The conversion function does not take genomic coordinates into account, so markers are ordered correctly, but equidistant. We add a line to the CSV file to correct this.
 +
 [source,r]
 ----
