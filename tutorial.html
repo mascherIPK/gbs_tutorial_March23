@@ -690,19 +690,24 @@ pre.rouge {
 <p>Connect with <a href="https://en.wikipedia.org/wiki/PuTTY">PuTTY</a> to our SLURM login node, slurm.ipk-gatersleben.de.</p>
 </li>
 <li>
-<p>Obtain a Kerberos ticket, allocate an interactive session with <a href="https://slurm.schedmd.com/salloc.html">salloc</a>.</p>
+<p>Obtain a Kerberos ticket and allocate an interactive session with <a href="https://slurm.schedmd.com/salloc.html">salloc</a>.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh">kinit
 auks <span class="nt">-a</span>
-salloc <span class="nt">--auks</span><span class="o">=</span><span class="nb">yes</span> <span class="nt">-p</span> cpu <span class="nt">-c</span> 4 <span class="nt">--mem</span> 10G <span class="c">#change cpu to queue for students</span>
-<span class="nb">hostname</span> <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+<span class="c">#change cpu to queue for students</span>
+salloc <span class="nt">--auks</span><span class="o">=</span><span class="nb">yes</span> <span class="nt">-p</span> gpu <span class="nt">-c</span> 4 <span class="nt">--mem</span> 20G <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="nb">hostname</span> <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>We allocate a session 4 CPU cores and 20 GB of main main memory.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
 <td>Check that you are on one of the SLURM compute nodes.</td>
 </tr>
 </table>
@@ -727,7 +732,7 @@ Login nodes are not for computing!
 </li>
 <li>
 <p>You will see the prompt of the UNIX command-line interpreter, the <a href="https://en.wikipedia.org/wiki/Unix_shell">shell</a>.
-It is called "shell" because it executes commands that do not belong to operating system, the "kernel".</p>
+It is called "shell" because it executes commands that do not belong to the operating system, the "kernel".</p>
 </li>
 </ol>
 </div>
@@ -747,8 +752,20 @@ It is called "shell" because it executes commands that do not belong to operatin
 <span class="nb">ls </span>data
 <span class="nb">ls</span> <span class="nt">-lhS</span> gbs_reads | less
 man <span class="nb">ls
-du</span> <span class="nt">-c</span> gbs_reads</code></pre>
+cd </span>gbs_reads
+<span class="nb">ls</span> | <span class="nb">wc</span> <span class="nt">-l</span>
+zcat Morex.fastq.gz | less <span class="nt">-S</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="nb">cd</span> ..
+<span class="nb">du</span> <span class="nt">-ch</span> gbs_reads</code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The reads are in <a href="https://en.wikipedia.org/wiki/FASTQ_format">FASTQ format</a>.</td>
+</tr>
+</table>
 </div>
 </li>
 <li>
@@ -764,8 +781,8 @@ du</span> <span class="nt">-c</span> gbs_reads</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh"><span class="nb">cd</span> /filer/projekte/mxb_tutorial <span class="c">#does not work yet</span>
-<span class="nb">mkdir </span>mascher/gbs
-<span class="nb">cd </span>mascher/gbs <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+<span class="nb">mkdir</span> <span class="nt">-p</span> mascher/gbs <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="nb">cd </span>mascher/gbs</code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -778,12 +795,17 @@ du</span> <span class="nt">-c</span> gbs_reads</code></pre>
 </div>
 </li>
 <li>
-<p>Create symbolic links to the GBS reads.</p>
+<p>Create symbolic links to the GBS reads and the phenotype data.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh"><span class="nb">pwd <i class="conum" data-value="1"></i><b>(1)</b>
 
-ln</span> <span class="nt">-s</span> /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/MxB_92_RILs_phenotypes.csv .</code></pre>
+mkdir </span>gbs_reads
+<span class="nb">ln</span> <span class="nt">-s</span> <span class="nv">$datadir</span>/gbs_reads/<span class="k">*</span>fastq.gz gbs_reads
+<span class="nb">ls</span> <span class="nt">-l</span> gbs_reads | less <span class="nt">-S</span>
+<span class="nb">ls </span>gbs_reads | <span class="nb">wc</span> <span class="nt">-l</span>
+
+<span class="nb">ln</span> <span class="nt">-s</span> <span class="nv">$datadir</span>/MxB_92_RILs_phenotypes.csv</code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -791,6 +813,31 @@ ln</span> <span class="nt">-s</span> /filer-dg/agruppen/dg6/mascher/DG/mxb_cours
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
 <td>Check that you are in your working directory (<code>/filer/projekte/mxb_tutorial/USER/gbs</code>).</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Count the reads. We use a for-loop to process all samples at once.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="r"><span class="n">zcat</span><span class="w"> </span><span class="n">gbs_reads</span><span class="o">/</span><span class="n">Morex.fastq.gz</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">wc</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">Morex.len</span><span class="w">
+
+</span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">gbs_reads</span><span class="o">/*</span><span class="n">fastq.gz</span><span class="p">;</span><span class="w"> </span><span class="n">do</span><span class="w">
+ </span><span class="n">name</span><span class="o">=</span><span class="n">`basename $i | cut -d . -f 1`</span><span class="w">
+ </span><span class="n">count</span><span class="o">=</span><span class="n">`zcat $i | wc -l`</span><span class="w">
+ </span><span class="n">echo</span><span class="w"> </span><span class="o">$</span><span class="n">name</span><span class="w"> </span><span class="o">$</span><span class="n">count</span><span class="w">
+</span><span class="n">done</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">fastq_line_counts.txt</span><span class="w">
+
+</span><span class="n">cat</span><span class="w"> </span><span class="n">fastq_line_counts.txt</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">awk</span><span class="w"> </span><span class="s1">'{print $1,$2/4}'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">sort</span><span class="w"> </span><span class="o">-</span><span class="n">nk</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">fastq_read_counts.txt</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
+</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>We use <a href="https://www.tutorialspoint.com/awk/index.htm">AWK</a> to divide the second column by 4.</td>
 </tr>
 </table>
 </div>
@@ -808,7 +855,8 @@ ln</span> <span class="nt">-s</span> /filer-dg/agruppen/dg6/mascher/DG/mxb_cours
 <p>We will use the tools <a href="https://github.com/lh3/bwa">BWA</a> and <a href="http://www.htslib.org/doc/samtools.html">samtools</a> for read mapping and processing of alignment records, respectively.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh">module load bwa samtools</code></pre>
+<pre class="rouge highlight"><code data-lang="sh">module load bwa samtools
+module list</code></pre>
 </div>
 </div>
 </li>
@@ -860,7 +908,7 @@ samtools view Morex_10k.bam | less <span class="nt">-S</span></code></pre>
 <p>Open a new PuTTY session on the slurm-login node. Start <a href="https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/">tmux</a> to keep your commands running in the background. Then start an interactive SLURM session.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh">tmux bash</code></pre>
+<pre class="rouge highlight"><code data-lang="sh">tmux</code></pre>
 </div>
 </div>
 </li>
@@ -900,14 +948,32 @@ tmux attach</code></pre>
 <i class="fa icon-important" title=":heavy_exclamation_mark:"></i>
 </td>
 <td class="content">
-If you forget to start <code>bwa</code> inside a <code>tmux</code> session, there is no way to prevent your job from aborting when you shutdown your laptop. Tough luck.
+If you forget to start bwa inside a tmux session, there is no way to prevent your job from aborting when you shutdown your laptop. Tough luck.
 </td>
 </tr>
 </table>
 </div>
 </li>
 <li>
-<p>Calculate mapping rates for all samples.</p>
+<p>Open a new terminal. Look at your jobs in the table of process (<code>top</code>).</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="sh">find | <span class="nb">grep</span> <span class="nt">-c</span> <span class="s1">'bam$'</span>
+squeue <span class="nt">-u</span> mascher <i class="conum" data-value="1"></i><b>(1)</b>
+ssh <span class="nt">-t</span> slurm-gpu-02 top</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Find the node on which your job is running. Replace mascher with your username.</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>When the mapping is done, calculate mapping rates for all samples.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh"><span class="k">for </span>i <span class="k">in </span>gbs_reads/<span class="k">*</span>bam<span class="p">;</span> <span class="k">do
@@ -916,6 +982,31 @@ If you forget to start <code>bwa</code> inside a <code>tmux</code> session, ther
  <span class="nb">echo</span> <span class="nv">$name</span> <span class="nv">$count</span>
 <span class="k">done</span> <span class="o">&gt;</span> mapped_reads.txt</code></pre>
 </div>
+</div>
+</li>
+<li>
+<p>Combine the raw reads counts and the mapping rates into one table.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="sh"><span class="nb">sort </span>fastq_read_counts.txt <span class="o">&gt;</span> tmp1 <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="nb">sort </span>mapped_reads.txt <span class="o">&gt;</span> tmp2 <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="nb">join </span>tmp1 tmp2 | <span class="nb">awk</span> <span class="s1">'{print $0,$3/$2*100}'</span> | <span class="nb">sort</span> <span class="nt">-nk</span> 4 | column <span class="nt">-t</span> <span class="o">&gt;</span> mapping_stats.txt <i class="conum" data-value="2"></i><b>(2)</b>
+
+<span class="nb">rm</span> <span class="nt">-f</span> tmp1 tmp2</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>To combine two lists with <a href="https://linux.die.net/man/1/join">join</a>, both lists need to be sorted on the common ID column.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><a href="https://linux.die.net/man/1/column">column</a> is used to align columns.</td>
+</tr>
+</table>
 </div>
 </li>
 </ol>
@@ -933,35 +1024,6 @@ If you forget to start <code>bwa</code> inside a <code>tmux</code> session, ther
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh"><span class="nb">ls </span>gbs_reads/<span class="k">*</span>bam | <span class="nb">sort</span> <span class="o">&gt;</span> bam_list.txt</code></pre>
 </div>
-</div>
-</li>
-<li>
-<p>Combine the raw reads counts and the mapping rates into one table.</p>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nb">sort </span>fastq_read_counts.txt <span class="o">&gt;</span> tmp1 <i class="conum" data-value="1"></i><b>(1)</b>
-<span class="nb">sort </span>mapped_reads.txt <span class="o">&gt;</span> tmp2 <i class="conum" data-value="1"></i><b>(1)</b>
-
-<span class="nb">join </span>tmp1 tmp2 | <span class="nb">awk</span> <span class="s1">'{print $0,$3/$2*100}'</span> | <span class="nb">sort</span> <span class="nt">-nk</span> 4 | column <span class="nt">-t</span> <span class="o">&gt;</span> mapping_stats.txt <i class="conum" data-value="2"></i><b>(2)</b> <i class="conum" data-value="3"></i><b>(3)</b>
-
-<span class="nb">rm</span> <span class="nt">-f</span> tmp1 tmp2</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>To combine two lists with <a href="https://linux.die.net/man/1/join">join</a>, both lists need to be sorted on the common ID column.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>We use <a href="https://www.tutorialspoint.com/awk/index.htm">AWK</a> to calculate the proportion of mapped reads.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td><a href="https://linux.die.net/man/1/column">column</a> is used to align columns.</td>
-</tr>
-</table>
 </div>
 </li>
 <li>
@@ -1025,7 +1087,7 @@ bcftools mpileup <span class="nt">--skip-indels</span> <span class="nt">--fasta-
 </div>
 </li>
 <li>
-<p>Change the column names to match the row names in the phenotype table.</p>
+<p>Change the column names of the VCF files to match the row names in the phenotype table.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh">less MxB_92_RILs_phenotypes.csv
@@ -1095,8 +1157,8 @@ A detailed tutorial is available <a href="https://cran.r-project.org/web/package
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="r"><span class="n">vcf</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'bcftools_SNP_calling_filtered_newNames.vcf'</span><span class="w">
-</span><span class="n">ids</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="n">read.table</span><span class="p">(</span><span class="s2">"new_sample_names.txt"</span><span class="p">,</span><span class="w"> </span><span class="n">head</span><span class="o">=</span><span class="nb">F</span><span class="p">)[,</span><span class="w"> </span><span class="m">1</span><span class="p">])</span><span class="w">
-</span><span class="n">genfile</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'bcftools_SNP_calling_geno.txt'</span><span class="w">
+</span><span class="n">ids</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"new_sample_names.txt"</span><span class="p">,</span><span class="w"> </span><span class="n">head</span><span class="o">=</span><span class="nb">F</span><span class="p">)[,</span><span class="w"> </span><span class="m">1</span><span class="p">]</span><span class="w">
+</span><span class="n">genfile</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'bcftools_SNP_calling_geno.csv'</span><span class="w">
 </span><span class="n">founders</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"Morex"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Barke"</span><span class="p">)</span><span class="w">
 </span><span class="n">samples</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">setdiff</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span><span class="w"> </span><span class="n">founders</span><span class="p">)</span><span class="w">
 
@@ -1108,13 +1170,13 @@ A detailed tutorial is available <a href="https://cran.r-project.org/web/package
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>This function write a text file in "csvs" format to disk. The output filename is <code>genfile</code>.</td>
+<td>This function writes a text file in R/qtl&#8217;s "csvs" format to disk. The output filename is <code>genfile</code>.</td>
 </tr>
 </table>
 </div>
 </li>
 <li>
-<p>The conversion function doesn&#8217;t use genomic coordinates, so markers are ordered correctly, but equidistant.</p>
+<p>The conversion function does not take genomic coordinates into account, so markers are ordered correctly, but equidistant. We add a line to the CSV file to correct this.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="r"><span class="n">cmd</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"sed -Ei '1{p; s/id|chr.H://g; h; d}; 2G'"</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
@@ -1327,10 +1389,11 @@ summary<span class="o">(</span>mxb<span class="o">)</span></code></pre>
 </div>
 </li>
 <li>
-<p>Thin the set of markers to keep one per megabase.</p>
+<p>Thin the set of markers.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh">lapply<span class="o">(</span>pull.map<span class="o">(</span>mxb<span class="o">)</span>, <span class="k">function</span><span class="o">(</span>i<span class="o">)</span> pickMarkerSubset<span class="o">(</span>i, 1<span class="o">))</span> |&gt; unlist<span class="o">()</span> -&gt; keep
+<pre class="rouge highlight"><code data-lang="sh">set.seed<span class="o">(</span>1<span class="o">)</span> <i class="conum" data-value="1"></i><b>(1)</b>
+lapply<span class="o">(</span>pull.map<span class="o">(</span>mxb<span class="o">)</span>, <span class="k">function</span><span class="o">(</span>i<span class="o">)</span> pickMarkerSubset<span class="o">(</span>i, 1<span class="o">))</span> |&gt; unlist<span class="o">()</span> -&gt; keep
 
 drop.markers<span class="o">(</span>mxb, setdiff<span class="o">(</span>markernames<span class="o">(</span>mxb<span class="o">)</span>, keep<span class="o">))</span>  -&gt; mxb
 
@@ -1338,6 +1401,14 @@ pdf<span class="o">(</span><span class="s2">"plot.geno_1Mb.pdf"</span><span clas
 geno.image<span class="o">(</span>mxb, <span class="nv">col</span><span class="o">=</span>c<span class="o">(</span><span class="s2">"white"</span>, <span class="s2">"red"</span>, <span class="s2">"violet"</span>, <span class="s2">"blue"</span><span class="o">))</span>
 dev.off<span class="o">()</span></code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Markers are picked at random to have one per megabase. To ensure you always get the results, set the <a href="https://en.wikipedia.org/wiki/Random_seed">seed</a> for random number generator.</td>
+</tr>
+</table>
 </div>
 </li>
 <li>
@@ -1376,7 +1447,7 @@ dev.off<span class="o">()</span></code></pre>
 <pre class="rouge highlight"><code data-lang="sh">pull.map<span class="o">(</span>mxb, as.table<span class="o">=</span>T<span class="o">)</span> -&gt; a
 pull.map<span class="o">(</span>mxb_physical, as.table<span class="o">=</span>T<span class="o">)</span> -&gt; b
 merge<span class="o">(</span>a, b, <span class="nv">by</span><span class="o">=</span>0<span class="o">)</span> -&gt; m <i class="conum" data-value="1"></i><b>(1)</b>
-sapply<span class="o">(</span><span class="nb">split</span><span class="o">(</span>m, m<span class="nv">$chr</span>.x<span class="o">)</span>, <span class="k">function</span><span class="o">(</span>i<span class="o">)</span> with<span class="o">(</span>i, cor<span class="o">(</span>pos.x, pos.y, <span class="nv">method</span><span class="o">=</span><span class="s1">'s'</span><span class="o">)))</span> -&gt; cor <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+sapply<span class="o">(</span><span class="nb">split</span><span class="o">(</span>m, m<span class="nv">$chr</span>.x<span class="o">)</span>, <span class="k">function</span><span class="o">(</span>i<span class="o">)</span> with<span class="o">(</span>i, cor<span class="o">(</span>pos.x, pos.y, <span class="nv">method</span><span class="o">=</span><span class="s1">'s'</span><span class="o">)))</span> -&gt; cc <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1517,7 +1588,7 @@ dev.off<span class="o">()</span></code></pre>
 </div>
 </li>
 <li>
-<p>Check by BLAST how close the top marker is to the causal gene (VRS1). GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
+<p>Check by BLAST how close the top marker is to the causal gene (<em>VRS1</em>). GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </li>
 </ol>
 </div>
@@ -1526,7 +1597,7 @@ dev.off<span class="o">()</span></code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-12-15 15:39:16 +0100
+Last updated 2022-12-16 14:57:06 +0100
 </div>
 </div>
 </body>

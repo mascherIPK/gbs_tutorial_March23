@@ -1,0 +1,226 @@
+kinit
+auks -a
+salloc --auks=yes -p cpu -c 4 --mem 20G #change cpu to queue for students
+hostname 
+
+cd /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201
+cd data
+ls data
+ls -lhS gbs_reads | less
+man ls
+cd gbs_reads
+ls | wc -l
+zcat Morex.fastq.gz | less -S
+cd ..
+du -ch gbs_reads
+
+less MxB_92_RILs_phenotypes.csv
+
+cd /filer/projekte/mxb_tutorial
+mkdir -p mascher/gbs
+cd mascher/gbs
+
+pwd
+
+datadir=/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data
+
+mkdir gbs_reads
+ln -s $datadir/gbs_reads/*fastq.gz gbs_reads
+ls -l gbs_reads | less -S
+ls gbs_reads | wc -l
+
+ln -s $datadir/MxB_92_RILs_phenotypes.csv
+
+zcat gbs_reads/Morex.fastq.gz | wc -l > Morex.len
+
+for i in gbs_reads/*fastq.gz; do
+ name=`basename $i | cut -d . -f 1`
+ count=`zcat $i | wc -l`
+ echo $name $count
+done > fastq_line_counts.txt
+
+cat fastq_line_counts.txt | awk '{print $1,$2/4}' | sort -nk 2 > fastq_read_counts.txt
+
+module load bwa samtools
+
+ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+bwa shm $ref
+
+zcat gbs_reads/Morex.fastq.gz | head -n 40000 > Morex_10k.fastq
+bwa mem $ref Morex_10k.fastq > Morex_10k.sam 
+samtools sort Morex_10k.sam > Morex_10k.bam 
+samtools view Morex_10k.bam | less -S
+
+bwa mem $ref Morex_10k.fastq | samtools sort > Morex_10k.bam
+
+tmux
+
+tmux ls
+tmux detach
+tmux attach
+
+ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+for i in gbs_reads/*fastq.gz; do
+ name=`echo $i | cut -d . -f 1`
+ bwa mem -t 4 $ref $i | samtools sort > $name.bam
+done 2> bwa.err
+
+find | grep -c 'bam$'
+squeue -u mascher
+ssh -t slurm-gpu-02 top
+
+for i in gbs_reads/*bam; do
+ name=`basename $i | cut -d . -f 1`
+ count=`samtools view -cq 20 $i`
+ echo $name $count
+done > mapped_reads.txt
+
+ls gbs_reads/*bam | sort > bam_list.txt
+
+bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 --annotate AD \
+ | bcftools view -i 'INFO/DP > 100' \
+ | bcftools call --consensus-caller --variants-only --output $vcf
+
+filter='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/scripts/filter_vcf.zsh'
+vcf='bcftools_SNP_calling.vcf'
+fvcf='bcftools_SNP_calling_filtered.vcf'
+
+$filter --vcf $vcf --dphom 2 --dphet 4 --minmaf 0.2 --minpresent 0.9 --minhomp 0.9 > $fvcf
+
+module load R
+R 
+
+.libPaths("/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/Rlibs/4.1.1")
+
+library("qtl")
+library("ASMap")
+library("utl")
+
+vcf <- 'bcftools_SNP_calling_filtered_newNames.vcf'
+ids <- read.table("new_sample_names.txt", head=F)[, 1]
+genfile <- 'bcftools_SNP_calling_geno.csv'
+founders <- c("Morex", "Barke")
+samples <- setdiff(ids, founders)
+
+convert_vcf_to_genfile(vcf, genfile, samples, founders)
+
+cmd <- "sed -Ei '1{p; s/id|chr.H://g; h; d}; 2G'"
+paste(cmd, genfile) |> system()
+
+pheno <- 'MxB_92_RILs_phenotypes.csv'
+read.cross(format="csvs", genfile=genfile, phefile=pheno, crosstype= "f2",  genotypes=c("AA","AB","BB")) -> mxb
+convert2bcsft(mxb, BC.gen=0, F.gen=8,  estimate.map=F) -> mxb
+summary(mxb)
+summary.map(mxb)
+
+nind(mxb) # number of inviduals
+nchr(mxb) # number of chromosomes (actually linkage group)
+totmar(mxb) # total number of markers
+nmar(mxb) # number of markers per chromosome
+nphe(mxb) # number of phenotypes
+
+pdf("plot_pheno.pdf")
+plotPheno(mxb, pheno.col=1)
+plotPheno(mxb, pheno.col=2)
+dev.off()
+
+rescalemap(mxb, 1/1e6) -> mxb
+summary.map(mxb)
+
+pdf("plot_map.pdf")
+plot.map(mxb, main="Physical map", ylab="Location (Mb)")
+dev.off()
+
+mxb -> mxb_physical
+saveRDS(mxb, "mxb_physical.Rds")
+readRDS("mxb_physical.Rds") -> mxb_physical
+
+summary.map(mstmap(mxb, id="id"))
+
+findDupMarkers(mxb, exact.only=FALSE) -> dups
+unlist(dups) |> length()
+
+mxb <- drop.markers(mxb, unlist(dups))
+summary(mxb)
+
+cg <- comparegeno(mxb)
+
+pdf("compare_geno.pdf")
+hist(cg[lower.tri(cg)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes")
+dev.off()
+
+summary(cg, thresh=0.9) -> dups
+subset(mxb, ind=setdiff(samples, dups$inds2)) -> mxb
+
+pdf("plot.geno.pdf")
+geno.image(mxb, col=c("white", "red", "violet", "blue"))
+dev.off()
+
+ntyped(mxb) |> sort() |> head(n=1) -> rm.ind
+
+subset(mxb, ind=setdiff(names(ntyped(mxb)), names(rm.ind))) -> mxb
+summary(mxb)
+
+set.seed(1)
+lapply(pull.map(mxb), function(i) pickMarkerSubset(i, 1)) |> unlist() -> keep
+
+drop.markers(mxb, setdiff(markernames(mxb), keep))  -> mxb
+
+pdf("plot.geno_1Mb.pdf")
+geno.image(mxb, col=c("white", "red", "violet", "blue"))
+dev.off()
+
+pdf("plot.geno_1Mb.pdf")
+geno.image(mxb, col=c("white", "red", "violet", "blue"))
+dev.off()
+
+mstmap.cross(mxb, id="id") -> mxb
+summary.map(mxb)
+
+pdf("align_maps.pdf")
+alignCross(mxb, maps=list(mxb_physical), layout=c(1,1))
+dev.off()
+
+pull.map(mxb, as.table=T) -> a
+pull.map(mxb_physical, as.table=T) -> b
+merge(a, b, by=0) -> m 
+sapply(split(m, m$chr.x), function(i) with(i, cor(pos.x, pos.y, method='s'))) -> cc
+
+names(which(cc < 0)) -> flip.chr
+flip.order(mxb, flip.chr) -> mxb
+
+pdf("align_maps.pdf")
+alignCross(mxb, maps=list(mxb_physical), layout=c(1,1))
+dev.off()
+
+pdf("plot.geno.mstmap.pdf")
+geno.image(mxb, col=c("white", "red", "violet", "blue"))
+dev.off()
+
+rescalemap(mxb_physical, 1/5) -> mxb_physical
+
+pdf("plot_map.pdf")
+plotMap(mxb, mxb_physical)
+dev.off()
+
+calc.genoprob(mxb) -> mxb
+
+mxb$pheno$row_type <- ifelse(mxb$pheno$row_type == 2, 0, 1)
+
+scanone(mxb, pheno.col=1, method="mr", model="binary") -> out
+operm <- scanone(mxb, method="mr", n.perm=1000, pheno.col=1)
+summary(operm, alpha=c(0.05, 0.2))
+
+summary(out, perms=operm, pvalues=TRUE)
+
+pdf("plot_row_type.pdf")
+plot(out)
+abline(h=3.5, col='red')
+dev.off()
+
+lodint(out, chr="2H", drop=2)
+
+rownames(max(out)) -> mar
+pdf("plot_pxg.pdf")
+plotPXG(mxb, pheno.col=1, marker=mar)
+dev.off()
