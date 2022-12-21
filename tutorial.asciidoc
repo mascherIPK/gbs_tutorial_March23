@@ -569,11 +569,13 @@ https://www.rdocumentation.org/packages/qtl/versions/1.47-9/topics/scanone[scano
 ----
 operm <- scanone(mxb, method="mr", n.perm=1000, pheno.col=1) 
 
+summary(operm, alpha=c(0.05, 0.2))
+
 pdf("plot_operm.pdf")
 hist(as.numeric(operm))
+abline(v=summary(operm, alpha=c(0.05)), col='red')
 dev.off()
 
-summary(operm, alpha=c(0.05, 0.2))
 summary(out, perms=operm, pvalues=TRUE)
 
 pdf("plot_row_type.pdf")

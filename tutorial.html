@@ -1565,11 +1565,13 @@ dev.off<span class="o">()</span></code></pre>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="r"><span class="n">operm</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">scanone</span><span class="p">(</span><span class="n">mxb</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="o">=</span><span class="s2">"mr"</span><span class="p">,</span><span class="w"> </span><span class="n">n.perm</span><span class="o">=</span><span class="m">1000</span><span class="p">,</span><span class="w"> </span><span class="n">pheno.col</span><span class="o">=</span><span class="m">1</span><span class="p">)</span><span class="w">
 
+</span><span class="n">summary</span><span class="p">(</span><span class="n">operm</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0.05</span><span class="p">,</span><span class="w"> </span><span class="m">0.2</span><span class="p">))</span><span class="w">
+
 </span><span class="n">pdf</span><span class="p">(</span><span class="s2">"plot_operm.pdf"</span><span class="p">)</span><span class="w">
 </span><span class="n">hist</span><span class="p">(</span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">operm</span><span class="p">))</span><span class="w">
+</span><span class="n">abline</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="n">summary</span><span class="p">(</span><span class="n">operm</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0.05</span><span class="p">)),</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="s1">'red'</span><span class="p">)</span><span class="w">
 </span><span class="n">dev.off</span><span class="p">()</span><span class="w">
 
-</span><span class="n">summary</span><span class="p">(</span><span class="n">operm</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0.05</span><span class="p">,</span><span class="w"> </span><span class="m">0.2</span><span class="p">))</span><span class="w">
 </span><span class="n">summary</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">perms</span><span class="o">=</span><span class="n">operm</span><span class="p">,</span><span class="w"> </span><span class="n">pvalues</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
 
 </span><span class="n">pdf</span><span class="p">(</span><span class="s2">"plot_row_type.pdf"</span><span class="p">)</span><span class="w">
@@ -1617,7 +1619,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-12-21 11:48:00 +0100
+Last updated 2022-12-21 13:09:37 +0100
 </div>
 </div>
 </body>
