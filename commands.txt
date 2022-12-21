@@ -208,8 +208,20 @@ calc.genoprob(mxb) -> mxb
 mxb$pheno$row_type <- ifelse(mxb$pheno$row_type == 2, 0, 1)
 
 scanone(mxb, pheno.col=1, method="mr", model="binary") -> out
-operm <- scanone(mxb, method="mr", n.perm=1000, pheno.col=1)
+summary(out)
+
+pdf("plot_row_type.pdf")
+plot(out)
+dev.off()
+
+operm <- scanone(mxb, method="mr", n.perm=1000, pheno.col=1) 
+
 summary(operm, alpha=c(0.05, 0.2))
+
+pdf("plot_operm.pdf")
+hist(as.numeric(operm))
+abline(v=summary(operm, alpha=c(0.05)), col='red')
+dev.off()
 
 summary(out, perms=operm, pvalues=TRUE)
 

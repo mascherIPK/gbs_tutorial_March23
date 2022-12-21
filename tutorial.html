@@ -1454,7 +1454,7 @@ sapply<span class="o">(</span><span class="nb">split</span><span class="o">(</sp
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td><code>by=0</code> means merge by row names.</td>
+<td><code>by=0</code> means: merge by row names.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -1534,10 +1534,11 @@ dev.off<span class="o">()</span></code></pre>
 <pre class="rouge highlight"><code data-lang="r"><span class="n">mxb</span><span class="o">$</span><span class="n">pheno</span><span class="o">$</span><span class="n">row_type</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ifelse</span><span class="p">(</span><span class="n">mxb</span><span class="o">$</span><span class="n">pheno</span><span class="o">$</span><span class="n">row_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
 
 </span><span class="n">scanone</span><span class="p">(</span><span class="n">mxb</span><span class="p">,</span><span class="w"> </span><span class="n">pheno.col</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="o">=</span><span class="s2">"mr"</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="o">=</span><span class="s2">"binary"</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">out</span><span class="w"> <i class="conum" data-value="2"></i><b>(2)</b>
-</span><span class="n">operm</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">scanone</span><span class="p">(</span><span class="n">mxb</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="o">=</span><span class="s2">"mr"</span><span class="p">,</span><span class="w"> </span><span class="n">n.perm</span><span class="o">=</span><span class="m">1000</span><span class="p">,</span><span class="w"> </span><span class="n">pheno.col</span><span class="o">=</span><span class="m">1</span><span class="p">)</span><span class="w"> <i class="conum" data-value="3"></i><b>(3)</b>
-</span><span class="n">summary</span><span class="p">(</span><span class="n">operm</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0.05</span><span class="p">,</span><span class="w"> </span><span class="m">0.2</span><span class="p">))</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">
 
-</span><span class="n">summary</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">perms</span><span class="o">=</span><span class="n">operm</span><span class="p">,</span><span class="w"> </span><span class="n">pvalues</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span></code></pre>
+</span><span class="n">pdf</span><span class="p">(</span><span class="s2">"plot_row_type.pdf"</span><span class="p">)</span><span class="w"> <i class="conum" data-value="3"></i><b>(3)</b>
+</span><span class="n">plot</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">
+</span><span class="n">dev.off</span><span class="p">()</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1548,24 +1549,42 @@ dev.off<span class="o">()</span></code></pre>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Perform a single-QTL genome scan using the <a href="https://link.springer.com/article/10.1007/BF00223708">marker regression</a> (mr) method.</td>
+<td>Perform a single-QTL genome scan using the <a href="https://link.springer.com/article/10.1007/BF00223708">marker regression</a> (mr) method.
+<a href="https://www.rdocumentation.org/packages/qtl/versions/1.47-9/topics/scanone">scanone()</a> supports several other methods and models.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Run a permutation test to get p-values and significance threshold.</td>
+<td>Plot the LOD scores along the genome.</td>
 </tr>
 </table>
 </div>
 </li>
 <li>
-<p>Plot the LOD scores along the genome.</p>
+<p>Run a <a href="https://smcclatchy.github.io/mapping/06-perform-perm-test/">permutation test</a> to get p-values and a significance threshold.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="r"><span class="n">pdf</span><span class="p">(</span><span class="s2">"plot_row_type.pdf"</span><span class="p">)</span><span class="w">
+<pre class="rouge highlight"><code data-lang="r"><span class="n">operm</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">scanone</span><span class="p">(</span><span class="n">mxb</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="o">=</span><span class="s2">"mr"</span><span class="p">,</span><span class="w"> </span><span class="n">n.perm</span><span class="o">=</span><span class="m">1000</span><span class="p">,</span><span class="w"> </span><span class="n">pheno.col</span><span class="o">=</span><span class="m">1</span><span class="p">)</span><span class="w">
+
+</span><span class="n">pdf</span><span class="p">(</span><span class="s2">"plot_operm.pdf"</span><span class="p">)</span><span class="w">
+</span><span class="n">hist</span><span class="p">(</span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">operm</span><span class="p">))</span><span class="w">
+</span><span class="n">dev.off</span><span class="p">()</span><span class="w">
+
+</span><span class="n">summary</span><span class="p">(</span><span class="n">operm</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0.05</span><span class="p">,</span><span class="w"> </span><span class="m">0.2</span><span class="p">))</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">perms</span><span class="o">=</span><span class="n">operm</span><span class="p">,</span><span class="w"> </span><span class="n">pvalues</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+
+</span><span class="n">pdf</span><span class="p">(</span><span class="s2">"plot_row_type.pdf"</span><span class="p">)</span><span class="w">
 </span><span class="n">plot</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">
-</span><span class="n">abline</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="m">3.5</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="s1">'red'</span><span class="p">)</span><span class="w">
+</span><span class="n">abline</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="m">3.5</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="s1">'red'</span><span class="p">)</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
 </span><span class="n">dev.off</span><span class="p">()</span></code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Add the significance threshold.</td>
+</tr>
+</table>
 </div>
 </li>
 <li>
@@ -1588,7 +1607,8 @@ dev.off<span class="o">()</span></code></pre>
 </div>
 </li>
 <li>
-<p>Check by BLAST how close the top marker is to the causal gene (<em>VRS1</em>). GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
+<p>Check by BLAST how close the top marker is to the <a href="https://www.pnas.org/doi/10.1073/pnas.0608580104">causal gene</a> (<em>VRS1</em>). The sequence is available from <a href="https://www.ncbi.nlm.nih.gov/nuccore/MF776946.1">GenBank</a>.
+GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </li>
 </ol>
 </div>
@@ -1597,7 +1617,7 @@ dev.off<span class="o">()</span></code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-12-16 14:57:06 +0100
+Last updated 2022-12-21 11:48:00 +0100
 </div>
 </div>
 </body>
