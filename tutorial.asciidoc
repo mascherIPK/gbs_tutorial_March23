@@ -51,7 +51,7 @@ It is called "shell" because it executes commands that do not belong to the oper
 +
 [source,sh]
 ----
-cd /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201
+cd /filer/projekte/gbs_course
 cd data
 ls data
 ls -lhS gbs_reads | less
@@ -75,7 +75,7 @@ less MxB_92_RILs_phenotypes.csv
 +
 [source,sh]
 ----
-cd /filer/projekte/mxb_tutorial #does not work yet
+cd /filer/projekte/gbs_course
 mkdir -p mascher/gbs // <1>
 cd mascher/gbs 
 ----
@@ -95,7 +95,7 @@ ls gbs_reads | wc -l
 ln -s $datadir/MxB_92_RILs_phenotypes.csv
 
 ----
-<1> Check that you are in your working directory (`/filer/projekte/mxb_tutorial/USER/gbs`).
+<1> Check that you are in your working directory (`/filer/projekte/gbs_course/USER/gbs`).
 
 . Count the reads. We use a for-loop to process all samples at once.
 +
@@ -127,7 +127,7 @@ module list
 +
 [source,sh]
 ----
-ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta' // <1>
+ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta' // <1>
 bwa shm $ref
 ----
 <1> We use the https://academic.oup.com/plcell/article/33/6/1888/6169005[MorexV3] reference genome sequence.
@@ -170,7 +170,7 @@ tmux attach
 +
 [source,sh]
 ----
-ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+ref='//filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
 for i in gbs_reads/*fastq.gz; do
  name=`echo $i | cut -d . -f 1` // <1>
  bwa mem -t 4 $ref $i | samtools sort > $name.bam
@@ -230,7 +230,7 @@ ls gbs_reads/*bam | sort > bam_list.txt
 ----
 tmux // <1>
 module load bcftools
-ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
 bamlist='bam_list.txt'
 vcf='bcftools_SNP_calling.vcf' // <2>
 
@@ -248,7 +248,7 @@ bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 
 +
 [source, sh]
 ----
-filter='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/scripts/filter_vcf.zsh'
+filter='/filer/projekte/gbs_course/scripts/filter_vcf.zsh'
 vcf='bcftools_SNP_calling.vcf'
 fvcf='bcftools_SNP_calling_filtered.vcf'
 
@@ -272,8 +272,8 @@ grep -v '^##' bcftools_SNP_calling_filtered_newNames.vcf | column -t | less -S
 +
 [source,sh]
 ----
-module load R
-R #use R --vanilla to skip your ~/.Rprofile
+module load R/4.1.1
+R 
 ----
 
 . R is a widely used programming language in data science. There are very many tutorials, e.g. https://www.statmethods.net/r-tutorial/index.html[this one].
@@ -282,7 +282,7 @@ R #use R --vanilla to skip your ~/.Rprofile
 +
 [source,r]
 ----
-.libPaths("/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/Rlibs/4.1.1") // <1>
+.libPaths("/filer/projekte/gbs_course/Rlibs/4.1.1") // <1>
 
 library("qtl") // <2>
 library("ASMap") // <3> 
