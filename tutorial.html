@@ -747,7 +747,7 @@ It is called "shell" because it executes commands that do not belong to the oper
 <p>Let&#8217;s have a look at the GBS data.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nb">cd</span> /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201
+<pre class="rouge highlight"><code data-lang="sh"><span class="nb">cd</span> /filer/projekte/gbs_course
 <span class="nb">cd </span>data
 <span class="nb">ls </span>data
 <span class="nb">ls</span> <span class="nt">-lhS</span> gbs_reads | less
@@ -780,7 +780,7 @@ zcat Morex.fastq.gz | less <span class="nt">-S</span> <i class="conum" data-valu
 <p>Create your working directory and change into it.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nb">cd</span> /filer/projekte/mxb_tutorial <span class="c">#does not work yet</span>
+<pre class="rouge highlight"><code data-lang="sh"><span class="nb">cd</span> /filer/projekte/gbs_course
 <span class="nb">mkdir</span> <span class="nt">-p</span> mascher/gbs <i class="conum" data-value="1"></i><b>(1)</b>
 <span class="nb">cd </span>mascher/gbs</code></pre>
 </div>
@@ -812,7 +812,7 @@ mkdir </span>gbs_reads
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Check that you are in your working directory (<code>/filer/projekte/mxb_tutorial/USER/gbs</code>).</td>
+<td>Check that you are in your working directory (<code>/filer/projekte/gbs_course/USER/gbs</code>).</td>
 </tr>
 </table>
 </div>
@@ -864,7 +864,7 @@ module list</code></pre>
 <p>Load the BWA index into shared memory. This step can be skipped, but pre-loadeding the index makes mapping a lot faster.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight"><code data-lang="sh"><span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span> <i class="conum" data-value="1"></i><b>(1)</b>
 bwa shm <span class="nv">$ref</span></code></pre>
 </div>
 </div>
@@ -926,7 +926,7 @@ tmux attach</code></pre>
 <p>Map all samples.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span>
+<pre class="rouge highlight"><code data-lang="sh"><span class="nv">ref</span><span class="o">=</span><span class="s1">'//filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span>
 <span class="k">for </span>i <span class="k">in </span>gbs_reads/<span class="k">*</span>fastq.gz<span class="p">;</span> <span class="k">do
  </span><span class="nv">name</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | <span class="nb">cut</span> <span class="nt">-d</span> <span class="nb">.</span> <span class="nt">-f</span> 1<span class="sb">`</span> <i class="conum" data-value="1"></i><b>(1)</b>
  bwa mem <span class="nt">-t</span> 4 <span class="nv">$ref</span> <span class="nv">$i</span> | samtools <span class="nb">sort</span> <span class="o">&gt;</span> <span class="nv">$name</span>.bam
@@ -1032,7 +1032,7 @@ ssh <span class="nt">-t</span> slurm-gpu-02 top</code></pre>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh">tmux <i class="conum" data-value="1"></i><b>(1)</b>
 module load bcftools
-<span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span>
+<span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span>
 <span class="nv">bamlist</span><span class="o">=</span><span class="s1">'bam_list.txt'</span>
 <span class="nv">vcf</span><span class="o">=</span><span class="s1">'bcftools_SNP_calling.vcf'</span> <i class="conum" data-value="2"></i><b>(2)</b>
 
@@ -1070,7 +1070,7 @@ bcftools mpileup <span class="nt">--skip-indels</span> <span class="nt">--fasta-
 <p>Filter the variant calls.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nv">filter</span><span class="o">=</span><span class="s1">'/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/scripts/filter_vcf.zsh'</span>
+<pre class="rouge highlight"><code data-lang="sh"><span class="nv">filter</span><span class="o">=</span><span class="s1">'/filer/projekte/gbs_course/scripts/filter_vcf.zsh'</span>
 <span class="nv">vcf</span><span class="o">=</span><span class="s1">'bcftools_SNP_calling.vcf'</span>
 <span class="nv">fvcf</span><span class="o">=</span><span class="s1">'bcftools_SNP_calling_filtered.vcf'</span>
 
@@ -1110,8 +1110,8 @@ bcftools reheader <span class="nt">-s</span> new_sample_names.txt <span class="n
 <p>Start R.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh">module load R
-R <span class="c">#use R --vanilla to skip your ~/.Rprofile</span></code></pre>
+<pre class="rouge highlight"><code data-lang="sh">module load R/4.1.1
+R</code></pre>
 </div>
 </div>
 </li>
@@ -1122,7 +1122,7 @@ R <span class="c">#use R --vanilla to skip your ~/.Rprofile</span></code></pre>
 <p>Load the required libraries.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="r"><span class="n">.libPaths</span><span class="p">(</span><span class="s2">"/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/Rlibs/4.1.1"</span><span class="p">)</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight"><code data-lang="r"><span class="n">.libPaths</span><span class="p">(</span><span class="s2">"/filer/projekte/gbs_course/Rlibs/4.1.1"</span><span class="p">)</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
 
 </span><span class="n">library</span><span class="p">(</span><span class="s2">"qtl"</span><span class="p">)</span><span class="w"> <i class="conum" data-value="2"></i><b>(2)</b>
 </span><span class="n">library</span><span class="p">(</span><span class="s2">"ASMap"</span><span class="p">)</span><span class="w"> <i class="conum" data-value="3"></i><b>(3)</b>
@@ -1619,7 +1619,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-12-21 13:09:37 +0100
+Last updated 2023-03-21 11:13:38 +0100
 </div>
 </div>
 </body>
