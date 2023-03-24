@@ -17,7 +17,7 @@
 image::https://bitbucket.org/tritexassembly/tritexassembly.bitbucket.io/raw/9375957ff5f1763b1ce11d090919a76de9d7bf7a/tritex_overview.jpg[]
 ////
 
-image::flowchart.png[scaledwidth="75%", align=center]
+image::GBStutorial_flowchart.jpeg[scaledwidth="75%", align=center]
 
 == Open a UNIX shell
 
