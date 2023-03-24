@@ -958,8 +958,8 @@ If you forget to start bwa inside a tmux session, there is no way to prevent you
 <p>Open a new terminal. Look at your jobs in the table of process (<code>top</code>).</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh">find | <span class="nb">grep</span> <span class="nt">-c</span> <span class="s1">'bam$'</span>
-squeue <span class="nt">-u</span> mascher <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight"><code data-lang="sh">find | <span class="nb">grep</span> <span class="nt">-c</span> <span class="s1">'bam$'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+squeue <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2)</b>
 ssh <span class="nt">-t</span> slurm-gpu-02 top</code></pre>
 </div>
 </div>
@@ -967,6 +967,10 @@ ssh <span class="nt">-t</span> slurm-gpu-02 top</code></pre>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Show the number of BAM files created so far.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
 <td>Find the node on which your job is running. Replace mascher with your username.</td>
 </tr>
 </table>
@@ -1619,7 +1623,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-24 14:51:42 +0100
+Last updated 2023-03-24 14:54:31 +0100
 </div>
 </div>
 </body>

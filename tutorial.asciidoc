@@ -184,11 +184,12 @@ IMPORTANT: If you forget to start bwa inside a tmux session, there is no way to 
 +
 [source,sh]
 ----
-find | grep -c 'bam$'
-squeue -u mascher // <1>
+find | grep -c 'bam$' <1>
+squeue -u mascher // <2>
 ssh -t slurm-gpu-02 top
 ----
-<1> Find the node on which your job is running. Replace mascher with your username.
+<1> Show the number of BAM files created so far.
+<2> Find the node on which your job is running. Replace mascher with your username.
 
 . When the mapping is done, calculate mapping rates for all samples.
 +
