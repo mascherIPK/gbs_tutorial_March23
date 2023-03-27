@@ -33,7 +33,7 @@ auks -a
 salloc --auks=yes -p gpu -c 4 --mem 20G // <1>
 hostname // <2>
 ----
-<1> We allocate a session 4 CPU cores and 20 GB of main main memory.
+<1> We allocate a session 4 CPU cores and 20 GB of main memory.
 <2> Check that you are on one of the SLURM compute nodes.
 
 . https://stanford-rc.github.io/docs-earth/docs/slurm-basics[SLURM] is widely used scheduling system. 
@@ -53,16 +53,17 @@ It is called "shell" because it executes commands that do not belong to the oper
 ----
 cd /filer/projekte/gbs_course
 cd data
-ls data
-ls -lhS gbs_reads | less
+ls
+ls -lhS gbs_reads | less <1>
 man ls
 cd gbs_reads
 ls | wc -l
-zcat Morex.fastq.gz | less -S // <1>
+zcat Morex.fastq.gz | less -S // <2>
 cd ..
 du -ch gbs_reads
 ----
-<1> The reads are in https://en.wikipedia.org/wiki/FASTQ_format[FASTQ format].
+<1> To close `less`, just press `q`.
+<2> The reads are in https://en.wikipedia.org/wiki/FASTQ_format[FASTQ format].
 
 . Take at a look at the phenotypes. There are two binary traits: lateral spikelet fertility (commonly referred to in barley as row type) and presence of barbs on the awns (awn roughness).
 +
@@ -88,6 +89,7 @@ cd mascher/gbs
 pwd // <1>
 
 mkdir gbs_reads
+datadir="/filer/projekte/gbs_course/data/"
 ln -s $datadir/gbs_reads/*fastq.gz gbs_reads
 ls -l gbs_reads | less -S
 ls gbs_reads | wc -l 
@@ -143,7 +145,7 @@ samtools view Morex_10k.bam | less -S
 ----
 <1> Alignments are stored in the https://en.wikipedia.org/wiki/SAM_(file_format)[Sequence Alignment Map format] (SAM) or its binary equivalent BAM.
 
-. Combine mapping mapping and sorting into one command.
+. Combine mapping and sorting into one command.
 +
 [source,sh]
 ----
@@ -170,7 +172,7 @@ tmux attach
 +
 [source,sh]
 ----
-ref='//filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
 for i in gbs_reads/*fastq.gz; do
  name=`echo $i | cut -d . -f 1` // <1>
  bwa mem -t 4 $ref $i | samtools sort > $name.bam
@@ -243,7 +245,7 @@ bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 
 <2> Output file in https://en.wikipedia.org/wiki/Variant_Call_Format[variant call format] (VCF). https://samtools.github.io/hts-specs/VCFv4.2.pdf[Here] are the specifications of the VCF format.
 <3> We ignore insertions and deletions (`--skip-indels`), consider only SNPs with a quality score no smaller than 20 (`--min-MQ 20`) and add allelic depth information (`--annotate AD`) for all genotype calls.
 <4> Remove sites with fewer than 100 reads across all samples. We are only interested in sites that have at least two supporting reads in nine tenths of the samples.
-<5> The backslash \ character is used to split long commands across multiple lines.  When pasting the commands or editing them, make sure that no white space follows the backslash.  Otherwise, the shell will interpret the lines as belonging to different commands. Also multi-line commands do not toleate intervening command line (starting the the hash sign #).
+<5> The backslash \ character is used to split long commands across multiple lines.  When pasting the commands or editing them, make sure that no white space follows the backslash.  Otherwise, the shell will interpret the lines as belonging to different commands. Also multi-line commands do not tolerate intervening command line (starting the hash sign #).
 
 . Filter the variant calls.
 +
@@ -349,12 +351,12 @@ nphe(mxb) # number of phenotypes
 [source,r]
 ----
 pdf("plot_pheno.pdf") <1>
-plotPheno(mxb, pheno.col=1)
+plotPheno(mxb, pheno.col=1, xlab="phenotypes")
 plotPheno(mxb, pheno.col=2)
 dev.off() <2>
 ----
 <1> Open a PDF file to plot to. The file is created in the current working directory.
-<2> Close the file (switch the plotting device off). Don't forget to call dev.off(). Otherweise, the PDF file will be empty or invalid.
+<2> Close the file (switch the plotting device off). Don't forget to call dev.off(). Otherwise, the PDF file will be empty or invalid.
 
 . Change the scale of the linkage map from basepairs to megabases and plot the distribution of markers along chromosomes.
 +
@@ -384,11 +386,11 @@ readRDS("mxb_physical.Rds") -> mxb_physical
 has obviated the need for linkage map construction in mouse;
 the same applies to barley. 
 Although marker order is known, constructing a linkage map from scratch is a means of quality control. 
-If there are issues with the data, genetic the map will be off the mark.
+If there are issues with the data, the genetic map will be off the mark.
 
 . A map off the cuff is not too bad. The only worry is that it's about a fifth longer than expected.
 +
-[source,sh]
+[source,r]
 ----
 summary.map(mstmap(mxb, id="id"))
 ----
@@ -397,7 +399,7 @@ summary.map(mstmap(mxb, id="id"))
 
 . Remove duplicated markers. If there are groups of markers that differ only in their patterns of missing data, keep only one representative.
 +
-[source,sh]
+[source,r]
 ----
 findDupMarkers(mxb, exact.only=FALSE) -> dups // <1>
 unlist(dups) |> length()
@@ -409,7 +411,7 @@ summary(mxb)
 
 . Remove duplicated individuals.
 +
-[source,sh]
+[source,r]
 ----
 cg <- comparegeno(mxb)
 
@@ -423,17 +425,17 @@ subset(mxb, ind=setdiff(samples, dups$inds2)) -> mxb
 
 . Have a look at the https://link.springer.com/article/10.1007/BF00292322[graphical genotypes].
 +
-[source,sh]
+[source,r]
 ----
 pdf("plot.geno.pdf")
 geno.image(mxb, col=c("white", "red", "violet", "blue")) // <1>
 dev.off()
 ----
-<1> The default colors are red and green, which puts color blind people at a disadvantage.
+<1> The default colors are red and green, which puts color blind people at a disadvantage. In this case, the genotypes AA, BB, AB are displayed in the colors red, blue, and violet, respectively. Missing data will be displayed in white.
 
 . We remove the odd individuals with lots of missing calls.
 +
-[source,sh]
+[source,r]
 ----
 ntyped(mxb) |> sort() |> head(n=1) -> rm.ind
 
@@ -444,22 +446,18 @@ summary(mxb)
 
 . Thin the set of markers.
 +
-[source,sh]
+[source,r]
 ----
 set.seed(1) // <1>
 lapply(pull.map(mxb), function(i) pickMarkerSubset(i, 1)) |> unlist() -> keep
 
 drop.markers(mxb, setdiff(markernames(mxb), keep))  -> mxb
-
-pdf("plot.geno_1Mb.pdf")
-geno.image(mxb, col=c("white", "red", "violet", "blue"))
-dev.off()
 ----
 <1> Markers are picked at random to have one per megabase. To ensure you always get the results, set the https://en.wikipedia.org/wiki/Random_seed[seed] for random number generator. 
 
 . Look at the graphical genotypes again.
 +
-[source,sh]
+[source,r]
 ----
 pdf("plot.geno_1Mb.pdf")
 geno.image(mxb, col=c("white", "red", "violet", "blue"))
@@ -468,7 +466,7 @@ dev.off()
 
 . Construct the map again.
 +
-[source,sh]
+[source,r]
 ----
 mstmap.cross(mxb, id="id") -> mxb
 summary.map(mxb)
@@ -476,7 +474,7 @@ summary.map(mxb)
 
 . Align the genetic to physical map.
 +
-[source,sh]
+[source,r]
 ----
 pdf("align_maps.pdf")
 alignCross(mxb, maps=list(mxb_physical), layout=c(1,1))
@@ -485,7 +483,7 @@ dev.off()
 
 . Compute the rank correlation.
 +
-[source,sh]
+[source,r]
 ----
 pull.map(mxb, as.table=T) -> a
 pull.map(mxb_physical, as.table=T) -> b
@@ -497,26 +495,17 @@ sapply(split(m, m$chr.x), function(i) with(i, cor(pos.x, pos.y, method='s'))) ->
 
 . Flip those linkage groups that are inverted relative to the reference orientation (short arm first). 
 +
-[source,sh]
+[source,r]
 ----
 names(which(cc < 0)) -> flip.chr
 flip.order(mxb, flip.chr) -> mxb
 ----
-
-////
-. `summary_map()` complains about co-segregating markers.
 +
-[source,sh]
-----
-jittermap(mxb) -> mxb
-----
-////
-
 . Plot the update alignment and graphical genotypes.
 +
-[source,sh]
+[source,r]
 ----
-pdf("align_maps.pdf")
+pdf("align_maps_2.pdf")
 alignCross(mxb, maps=list(mxb_physical), layout=c(1,1))
 dev.off()
 
@@ -527,11 +516,11 @@ dev.off()
 
 . Compare genetic and physical map with connector plots.
 +
-[source,sh]
+[source,r]
 ----
 rescalemap(mxb_physical, 1/5) -> mxb_physical // <1>
 
-pdf("plot_map.pdf")
+pdf("plot_map_2.pdf")
 plotMap(mxb, mxb_physical)
 dev.off()
 ----
@@ -541,7 +530,7 @@ dev.off()
 
 . Calculate https://smcclatchy.github.io/mapping/03-calc-genoprob/[genotype probabilities] conditional on the marker data.
 +
-[source,sh]
+[source,r]
 ----
 calc.genoprob(mxb) -> mxb
 ----
@@ -562,7 +551,7 @@ dev.off()
 <1> Values for binary traits have to be zero or one.
 <2> Perform a single-QTL genome scan using the https://link.springer.com/article/10.1007/BF00223708[marker regression] (mr) method.
 https://www.rdocumentation.org/packages/qtl/versions/1.47-9/topics/scanone[scanone()] supports several other methods and models.
-<3> Plot the LOD scores along the genome.
+<3> Plot the LOD (logarithm of the odds) scores along the genome.
 
 . Run a https://smcclatchy.github.io/mapping/06-perform-perm-test/[permutation test] to get p-values and a significance threshold.
 +
@@ -579,7 +568,7 @@ dev.off()
 
 summary(out, perms=operm, pvalues=TRUE)
 
-pdf("plot_row_type.pdf")
+pdf("plot_row_type_threshold.pdf")
 plot(out)
 abline(h=3.5, col='red') // <2>
 dev.off()
@@ -603,6 +592,8 @@ pdf("plot_pxg.pdf")
 plotPXG(mxb, pheno.col=1, marker=mar)
 dev.off()
 ----
+
+. To close R, type `quit()`. To close the tmux session and SLURM, type `exit` twice. This will finish the tmux session, if you just want to detach, use `tmux detach`.
 
 . Check by BLAST how close the top marker is to the https://www.pnas.org/doi/10.1073/pnas.0608580104[causal gene] (_VRS1_). The sequence is available from https://www.ncbi.nlm.nih.gov/nuccore/MF776946.1[GenBank].
 GrainGenes offers https://wheat.pw.usda.gov[a web-based BLAST].

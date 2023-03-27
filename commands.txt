@@ -3,9 +3,9 @@ auks -a
 salloc --auks=yes -p cpu -c 4 --mem 20G #change cpu to queue for students
 hostname 
 
-cd /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201
+cd /filer/projekte/gbs_course 
 cd data
-ls data
+ls
 ls -lhS gbs_reads | less
 man ls
 cd gbs_reads
@@ -16,15 +16,14 @@ du -ch gbs_reads
 
 less MxB_92_RILs_phenotypes.csv
 
-cd /filer/projekte/mxb_tutorial
+cd /filer/projekte/gbs_course
 mkdir -p mascher/gbs
 cd mascher/gbs
 
 pwd
 
-datadir=/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data
-
 mkdir gbs_reads
+datadir="/filer/projekte/gbs_course/data/"
 ln -s $datadir/gbs_reads/*fastq.gz gbs_reads
 ls -l gbs_reads | less -S
 ls gbs_reads | wc -l
@@ -42,8 +41,9 @@ done > fastq_line_counts.txt
 cat fastq_line_counts.txt | awk '{print $1,$2/4}' | sort -nk 2 > fastq_read_counts.txt
 
 module load bwa samtools
+module list
 
-ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
 bwa shm $ref
 
 zcat gbs_reads/Morex.fastq.gz | head -n 40000 > Morex_10k.fastq
@@ -59,7 +59,7 @@ tmux ls
 tmux detach
 tmux attach
 
-ref='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
 for i in gbs_reads/*fastq.gz; do
  name=`echo $i | cut -d . -f 1`
  bwa mem -t 4 $ref $i | samtools sort > $name.bam
@@ -75,19 +75,35 @@ for i in gbs_reads/*bam; do
  echo $name $count
 done > mapped_reads.txt
 
+sort fastq_read_counts.txt > tmp1 
+sort mapped_reads.txt > tmp2 
+join tmp1 tmp2 | awk '{print $0,$3/$2*100}' | sort -nk 4 | column -t > mapping_stats.txt 
+rm -f tmp1 tmp2
+
 ls gbs_reads/*bam | sort > bam_list.txt
+
+tmux
+module load bcftools
+ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
+bamlist='bam_list.txt'
+vcf='bcftools_SNP_calling.vcf'
 
 bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 --annotate AD \
  | bcftools view -i 'INFO/DP > 100' \
  | bcftools call --consensus-caller --variants-only --output $vcf
 
-filter='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/scripts/filter_vcf.zsh'
+filter='/filer/projekte/gbs_course/scripts/filter_vcf.zsh'
 vcf='bcftools_SNP_calling.vcf'
 fvcf='bcftools_SNP_calling_filtered.vcf'
 
 $filter --vcf $vcf --dphom 2 --dphet 4 --minmaf 0.2 --minpresent 0.9 --minhomp 0.9 > $fvcf
 
-module load R
+less MxB_92_RILs_phenotypes.csv
+bcftools query -l $fvcf | cut -d / -f 2 | cut -d . -f 1 > new_sample_names.txt
+bcftools reheader -s new_sample_names.txt $fvcf > bcftools_SNP_calling_filtered_newNames.vcf
+grep -v '^##' bcftools_SNP_calling_filtered_newNames.vcf | column -t | less -S
+
+module load R/4.1.1
 R 
 
 .libPaths("/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/Rlibs/4.1.1")
@@ -120,7 +136,7 @@ nmar(mxb) # number of markers per chromosome
 nphe(mxb) # number of phenotypes
 
 pdf("plot_pheno.pdf")
-plotPheno(mxb, pheno.col=1)
+plotPheno(mxb, pheno.col=1, xlab="phenotypes")
 plotPheno(mxb, pheno.col=2)
 dev.off()
 
@@ -170,10 +186,6 @@ pdf("plot.geno_1Mb.pdf")
 geno.image(mxb, col=c("white", "red", "violet", "blue"))
 dev.off()
 
-pdf("plot.geno_1Mb.pdf")
-geno.image(mxb, col=c("white", "red", "violet", "blue"))
-dev.off()
-
 mstmap.cross(mxb, id="id") -> mxb
 summary.map(mxb)
 
@@ -189,7 +201,7 @@ sapply(split(m, m$chr.x), function(i) with(i, cor(pos.x, pos.y, method='s'))) ->
 names(which(cc < 0)) -> flip.chr
 flip.order(mxb, flip.chr) -> mxb
 
-pdf("align_maps.pdf")
+pdf("align_maps_2.pdf")
 alignCross(mxb, maps=list(mxb_physical), layout=c(1,1))
 dev.off()
 
@@ -199,7 +211,7 @@ dev.off()
 
 rescalemap(mxb_physical, 1/5) -> mxb_physical
 
-pdf("plot_map.pdf")
+pdf("plot_map_2.pdf")
 plotMap(mxb, mxb_physical)
 dev.off()
 
@@ -225,7 +237,7 @@ dev.off()
 
 summary(out, perms=operm, pvalues=TRUE)
 
-pdf("plot_row_type.pdf")
+pdf("plot_row_type_threshold.pdf")
 plot(out)
 abline(h=3.5, col='red')
 dev.off()
@@ -236,3 +248,5 @@ rownames(max(out)) -> mar
 pdf("plot_pxg.pdf")
 plotPXG(mxb, pheno.col=1, marker=mar)
 dev.off()
+
+quit()
