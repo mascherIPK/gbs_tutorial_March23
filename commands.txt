@@ -106,7 +106,7 @@ grep -v '^##' bcftools_SNP_calling_filtered_newNames.vcf | column -t | less -S
 module load R/4.1.1
 R 
 
-.libPaths("/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/Rlibs/4.1.1")
+.libPaths("/filer/projekte/gbs_course/Rlibs/4.1.1")
 
 library("qtl")
 library("ASMap")
