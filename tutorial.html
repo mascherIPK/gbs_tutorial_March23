@@ -687,45 +687,21 @@ pre.rouge {
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Connect with <a href="https://en.wikipedia.org/wiki/PuTTY">PuTTY</a> to our SLURM login node, slurm.ipk-gatersleben.de.</p>
+<p>Connect with <a href="https://en.wikipedia.org/wiki/PuTTY">PuTTY</a> to the server slurm-01.ipk-gatersleben.de.</p>
 </li>
 <li>
-<p>Obtain a Kerberos ticket and allocate an interactive session with <a href="https://slurm.schedmd.com/salloc.html">salloc</a>.</p>
+<p>Obtain a Kerberos ticket to access our filer resources.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh">kinit
-auks <span class="nt">-a</span>
-<span class="c">#change cpu to queue for students</span>
-salloc <span class="nt">--auks</span><span class="o">=</span><span class="nb">yes</span> <span class="nt">-p</span> gpu <span class="nt">-c</span> 4 <span class="nt">--mem</span> 20G <i class="conum" data-value="1"></i><b>(1)</b>
-<span class="nb">hostname</span> <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+klist <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We allocate a session 4 CPU cores and 20 GB of main memory.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Check that you are on one of the SLURM compute nodes.</td>
-</tr>
-</table>
-</div>
-</li>
-<li>
-<p><a href="https://stanford-rc.github.io/docs-earth/docs/slurm-basics">SLURM</a> is widely used scheduling system.
-A brief documenation is available <a href="https://slurm-web.ipk-gatersleben.de/wiki/doku.php?id=start">here</a>,
-and here&#8217;s an even shorter <a href="https://slurm-web.ipk-gatersleben.de/wiki/lib/exe/fetch.php?media=slurm:slurm_flyer.pdf">cheat sheet</a>.</p>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title=":heavy_exclamation_mark:"></i>
-</td>
-<td class="content">
-Login nodes are not for computing!
-</td>
+<td>A ticket is valid for seven days.</td>
 </tr>
 </table>
 </div>
@@ -733,6 +709,15 @@ Login nodes are not for computing!
 <li>
 <p>You will see the prompt of the UNIX command-line interpreter, the <a href="https://en.wikipedia.org/wiki/Unix_shell">shell</a>.
 It is called "shell" because it executes commands that do not belong to the operating system, the "kernel".</p>
+</li>
+<li>
+<p>Check out your home directory.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="sh"><span class="nb">pwd
+ls</span></code></pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -763,7 +748,7 @@ zcat Morex.fastq.gz | less <span class="nt">-S</span> <i class="conum" data-valu
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>To close <code>less</code>, just press <code>q</code>.</td>
+<td>To close <code>less</code>, press <code>q</code>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -963,7 +948,7 @@ If you forget to start bwa inside a tmux session, there is no way to prevent you
 <p>Open a new terminal. Look at your jobs in the table of process (<code>top</code>).</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh">find | <span class="nb">grep</span> <span class="nt">-c</span> <span class="s1">'bam$'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight"><code data-lang="sh">find gbs_reads | <span class="nb">grep</span> <span class="nt">-c</span> <span class="s1">'bam$'</span> <i class="conum" data-value="1"></i><b>(1)</b>
 top <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
 </div>
 </div>
@@ -981,7 +966,7 @@ top <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2
 </div>
 </li>
 <li>
-<p>When the mapping is done, calculate mapping rates for all samples.</p>
+<p>When the mapping is done, calculate the mapping rates for all samples.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh"><span class="k">for </span>i <span class="k">in </span>gbs_reads/<span class="k">*</span>bam<span class="p">;</span> <span class="k">do
@@ -993,7 +978,7 @@ top <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2
 </div>
 </li>
 <li>
-<p>Combine the raw reads counts and the mapping rates into one table.</p>
+<p>Combine the raw read counts and the mapping rates into one table.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh"><span class="nb">sort </span>fastq_read_counts.txt <span class="o">&gt;</span> tmp1 <i class="conum" data-value="1"></i><b>(1)</b>
@@ -1261,13 +1246,13 @@ This could also be achieved with a text editor. The command, at the cost of arca
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Close the file (switch the plotting device off). Don&#8217;t forget to call dev.off(). Otherwise, the PDF file will be empty or invalid.</td>
+<td>Close the file (switch <strong>off</strong> the plotting <strong>device</strong>). Don&#8217;t forget to call <code>dev.off()</code>. Otherwise the PDF file will be empty or invalid.</td>
 </tr>
 </table>
 </div>
 </li>
 <li>
-<p>Change the scale of the linkage map from basepairs to megabases and plot the distribution of markers along chromosomes.</p>
+<p>Change the scale of the linkage map from base pairs to mega base pairs and plot the distribution of markers along chromosomes.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="r"><span class="n">rescalemap</span><span class="p">(</span><span class="n">mxb</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="o">/</span><span class="m">1e6</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb</span><span class="w">
@@ -1627,7 +1612,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-28 09:28:37 +0200
+Last updated 2023-03-28 11:20:41 +0200
 </div>
 </div>
 </body>

@@ -21,8 +21,29 @@ image::GBStutorial_flowchart.jpeg[scaledwidth="75%", align=center]
 
 == Open a UNIX shell
 
-. Connect with https://en.wikipedia.org/wiki/PuTTY[PuTTY] to our SLURM login node, slurm.ipk-gatersleben.de.
+. Connect with https://en.wikipedia.org/wiki/PuTTY[PuTTY] to the server slurm-01.ipk-gatersleben.de.
 
+. Obtain a Kerberos ticket to access our filer resources.
++
+[source,sh]
+----
+kinit 
+klist <1>
+----
+<1> A ticket is valid for seven days.
+
+. You will see the prompt of the UNIX command-line interpreter, the https://en.wikipedia.org/wiki/Unix_shell[shell].
+It is called "shell" because it executes commands that do not belong to the operating system, the "kernel".
+
+. Check out your home directory.
++
+[source,sh]
+----
+pwd
+ls
+----
+
+////
 . Obtain a Kerberos ticket and allocate an interactive session with https://slurm.schedmd.com/salloc.html[salloc].
 +
 [source,sh]
@@ -35,15 +56,15 @@ hostname // <2>
 ----
 <1> We allocate a session 4 CPU cores and 20 GB of main memory.
 <2> Check that you are on one of the SLURM compute nodes.
-
 . https://stanford-rc.github.io/docs-earth/docs/slurm-basics[SLURM] is widely used scheduling system. 
 A brief documenation is available https://slurm-web.ipk-gatersleben.de/wiki/doku.php?id=start[here], 
 and here's an even shorter https://slurm-web.ipk-gatersleben.de/wiki/lib/exe/fetch.php?media=slurm:slurm_flyer.pdf[cheat sheet].
 +
 IMPORTANT: Login nodes are not for computing!
 +
-. You will see the prompt of the UNIX command-line interpreter, the https://en.wikipedia.org/wiki/Unix_shell[shell].
-It is called "shell" because it executes commands that do not belong to the operating system, the "kernel".
+////
+
+
 
 == Set up your analysis directory  ==
 
@@ -62,7 +83,7 @@ zcat Morex.fastq.gz | less -S // <2>
 cd ..
 du -ch gbs_reads
 ----
-<1> To close `less`, just press `q`.
+<1> To close `less`, press `q`.
 <2> The reads are in https://en.wikipedia.org/wiki/FASTQ_format[FASTQ format].
 
 . Take at a look at the phenotypes. There are two binary traits: lateral spikelet fertility (commonly referred to in barley as row type) and presence of barbs on the awns (awn roughness).
@@ -186,13 +207,13 @@ IMPORTANT: If you forget to start bwa inside a tmux session, there is no way to 
 +
 [source,sh]
 ----
-find | grep -c 'bam$' <1>
+find gbs_reads | grep -c 'bam$' <1>
 top -u mascher // <2>
 ----
 <1> Show the number of BAM files created so far.
 <2> Replace mascher with your username.
 
-. When the mapping is done, calculate mapping rates for all samples.
+. When the mapping is done, calculate the mapping rates for all samples.
 +
 [source,sh]
 ----
@@ -203,7 +224,7 @@ for i in gbs_reads/*bam; do
 done > mapped_reads.txt
 ----
 
-. Combine the raw reads counts and the mapping rates into one table.
+. Combine the raw read counts and the mapping rates into one table.
 +
 [source,sh]
 ----
@@ -355,9 +376,9 @@ plotPheno(mxb, pheno.col=2)
 dev.off() <2>
 ----
 <1> Open a PDF file to plot to. The file is created in the current working directory.
-<2> Close the file (switch the plotting device off). Don't forget to call dev.off(). Otherwise, the PDF file will be empty or invalid.
+<2> Close the file (switch *off* the plotting *device*). Don't forget to call `dev.off()`. Otherwise the PDF file will be empty or invalid.
 
-. Change the scale of the linkage map from basepairs to megabases and plot the distribution of markers along chromosomes.
+. Change the scale of the linkage map from base pairs to mega base pairs and plot the distribution of markers along chromosomes.
 +
 [source,r]
 ----
