@@ -173,12 +173,13 @@ samtools view Morex_10k.bam | less -S
 bwa mem $ref Morex_10k.fastq | samtools sort > Morex_10k.bam
 ----
 
-. Open a new PuTTY session on the slurm-login node. Start https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/[tmux] to keep your commands running in the background. Then start an interactive SLURM session.
+. Open a new PuTTY session. Start https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/[tmux] to keep your commands running in the background. 
 +
 [source,sh]
 ----
-tmux 
+k5reauth tmux <1> 
 ----
+<1> k5reauth is used to prolong the Kerberos ticket for as long as the tmux session is running.
 
 . Try out tmux functionality.
 +
@@ -201,7 +202,7 @@ done 2> bwa.err
 ----
 <1> Strip the extension: Morex.fastq.gz become Morex.
 +
-IMPORTANT: If you forget to start bwa inside a tmux session, there is no way to prevent your job from aborting when you shutdown your laptop. Tough luck.
+IMPORTANT: If you forget to start bwa inside a tmux session, there is no way to prevent your job from aborting when you shutdown your laptop. Also without k5reauth programs cannot access filer resource after a maximum of ten hours.
 
 . Open a new terminal. Look at your jobs in the table of process (`top`).
 +
@@ -613,7 +614,7 @@ plotPXG(mxb, pheno.col=1, marker=mar)
 dev.off()
 ----
 
-. To close R, type `quit()`. To close the tmux session and SLURM, type `exit` twice. This will finish the tmux session, if you just want to detach, use `tmux detach`.
+. To close R, type `quit()`. To close the tmux session, type `exit`. This will finish the tmux session. If you just want to detach and keep the session running, use `tmux detach`.
 
 . Check by BLAST how close the top marker is to the https://www.pnas.org/doi/10.1073/pnas.0608580104[causal gene] (_VRS1_). The sequence is available from https://www.ncbi.nlm.nih.gov/nuccore/MF776946.1[GenBank].
 GrainGenes offers https://wheat.pw.usda.gov[a web-based BLAST].

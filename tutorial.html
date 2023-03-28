@@ -895,11 +895,19 @@ samtools view Morex_10k.bam | less <span class="nt">-S</span></code></pre>
 </div>
 </li>
 <li>
-<p>Open a new PuTTY session on the slurm-login node. Start <a href="https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/">tmux</a> to keep your commands running in the background. Then start an interactive SLURM session.</p>
+<p>Open a new PuTTY session. Start <a href="https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/">tmux</a> to keep your commands running in the background.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh">tmux</code></pre>
+<pre class="rouge highlight"><code data-lang="sh">k5reauth tmux <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>k5reauth is used to prolong the Kerberos ticket for as long as the tmux session is running.</td>
+</tr>
+</table>
 </div>
 </li>
 <li>
@@ -938,7 +946,7 @@ tmux attach</code></pre>
 <i class="fa icon-important" title=":heavy_exclamation_mark:"></i>
 </td>
 <td class="content">
-If you forget to start bwa inside a tmux session, there is no way to prevent your job from aborting when you shutdown your laptop. Tough luck.
+If you forget to start bwa inside a tmux session, there is no way to prevent your job from aborting when you shutdown your laptop. Also without k5reauth programs cannot access filer resource after a maximum of ten hours.
 </td>
 </tr>
 </table>
@@ -1599,7 +1607,7 @@ If there are issues with the data, the genetic map will be off the mark.</p>
 </div>
 </li>
 <li>
-<p>To close R, type <code>quit()</code>. To close the tmux session and SLURM, type <code>exit</code> twice. This will finish the tmux session, if you just want to detach, use <code>tmux detach</code>.</p>
+<p>To close R, type <code>quit()</code>. To close the tmux session, type <code>exit</code>. This will finish the tmux session. If you just want to detach and keep the session running, use <code>tmux detach</code>.</p>
 </li>
 <li>
 <p>Check by BLAST how close the top marker is to the <a href="https://www.pnas.org/doi/10.1073/pnas.0608580104">causal gene</a> (<em>VRS1</em>). The sequence is available from <a href="https://www.ncbi.nlm.nih.gov/nuccore/MF776946.1">GenBank</a>.
@@ -1612,7 +1620,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-28 11:20:41 +0200
+Last updated 2023-03-28 15:33:19 +0200
 </div>
 </div>
 </body>
