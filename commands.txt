@@ -54,7 +54,7 @@ samtools view Morex_10k.bam | less -S
 
 bwa mem $ref Morex_10k.fastq | samtools sort > Morex_10k.bam
 
-tmux
+k5reauth tmux
 
 tmux ls
 tmux detach
@@ -85,8 +85,7 @@ ls gbs_reads/*bam | sort > bam_list.txt
 tmux
 module load bcftools
 ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
-bamlist='bam_list.txt'
-bamlist='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/bam_list_Martin.txt'
+bamlist='bam_list.txt' # /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt
 vcf='bcftools_SNP_calling.vcf'
 
 bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 --annotate AD \
@@ -148,8 +147,8 @@ pdf("plot_map.pdf")
 plot.map(mxb, main="Physical map", ylab="Location (Mb)")
 dev.off()
 
-mxb -> mxb_physical
-saveRDS(mxb, "mxb_physical.Rds")
+copy(mxb) -> mxb_physical
+saveRDS(mxb_physical, "mxb_physical.Rds") 
 readRDS("mxb_physical.Rds") -> mxb_physical
 
 summary.map(mstmap(mxb, id="id"))
@@ -215,6 +214,9 @@ rescalemap(mxb_physical, 1/5) -> mxb_physical
 pdf("plot_map_2.pdf")
 plotMap(mxb, mxb_physical)
 dev.off()
+
+copy(mxb) -> mxb_genetic
+saveRDS(mxb_genetic, file="mxb_genetic.Rds")
 
 calc.genoprob(mxb) -> mxb
 

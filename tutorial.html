@@ -1034,7 +1034,7 @@ top <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2
 <pre class="rouge highlight"><code data-lang="sh">tmux <i class="conum" data-value="1"></i><b>(1)</b>
 module load bcftools
 <span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span>
-<span class="nv">bamlist</span><span class="o">=</span><span class="s1">'bam_list.txt'</span>
+<span class="nv">bamlist</span><span class="o">=</span><span class="s1">'bam_list.txt'</span> <span class="c"># /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt</span>
 <span class="nv">vcf</span><span class="o">=</span><span class="s1">'bcftools_SNP_calling.vcf'</span> <i class="conum" data-value="2"></i><b>(2)</b>
 
 bcftools mpileup <span class="nt">--skip-indels</span> <span class="nt">--fasta-ref</span> <span class="nv">$ref</span> <span class="nt">--bam-list</span> <span class="nv">$bamlist</span> <span class="nt">--min-MQ</span> 20 <span class="nt">--annotate</span> AD <span class="se">\</span><i class="conum" data-value="3"></i><b>(3)</b>
@@ -1276,8 +1276,8 @@ This could also be achieved with a text editor. The command, at the cost of arca
 <p>Create a copy of the cross object with the physical map for later comparison.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="r"><span class="n">mxb</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb_physical</span><span class="w">
-</span><span class="n">saveRDS</span><span class="p">(</span><span class="n">mxb</span><span class="p">,</span><span class="w"> </span><span class="s2">"mxb_physical.Rds"</span><span class="p">)</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight"><code data-lang="r"><span class="n">copy</span><span class="p">(</span><span class="n">mxb</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb_physical</span><span class="w">
+</span><span class="n">saveRDS</span><span class="p">(</span><span class="n">mxb_physical</span><span class="p">,</span><span class="w"> </span><span class="s2">"mxb_physical.Rds"</span><span class="p">)</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
 </span><span class="n">readRDS</span><span class="p">(</span><span class="s2">"mxb_physical.Rds"</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb_physical</span></code></pre>
 </div>
 </div>
@@ -1504,6 +1504,15 @@ If there are issues with the data, the genetic map will be off the mark.</p>
 </table>
 </div>
 </li>
+<li>
+<p>Save the genetic map object.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="r"><span class="n">copy</span><span class="p">(</span><span class="n">mxb</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb_genetic</span><span class="w">
+</span><span class="n">saveRDS</span><span class="p">(</span><span class="n">mxb_genetic</span><span class="p">,</span><span class="w"> </span><span class="n">file</span><span class="o">=</span><span class="s2">"mxb_genetic.Rds"</span><span class="p">)</span></code></pre>
+</div>
+</div>
+</li>
 </ol>
 </div>
 </div>
@@ -1620,7 +1629,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-28 15:33:19 +0200
+Last updated 2023-03-29 08:32:13 +0200
 </div>
 </div>
 </body>

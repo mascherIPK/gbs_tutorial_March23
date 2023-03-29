@@ -255,7 +255,7 @@ ls gbs_reads/*bam | sort > bam_list.txt
 tmux // <1>
 module load bcftools
 ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
-bamlist='bam_list.txt'
+bamlist='bam_list.txt' # /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt
 vcf='bcftools_SNP_calling.vcf' // <2>
 
 bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 --annotate AD \#<3>
@@ -395,8 +395,8 @@ dev.off()
 +
 [source,r]
 ----
-mxb -> mxb_physical
-saveRDS(mxb, "mxb_physical.Rds") // <1>
+copy(mxb) -> mxb_physical
+saveRDS(mxb_physical, "mxb_physical.Rds") // <1>
 readRDS("mxb_physical.Rds") -> mxb_physical 
 ----
 <1> Any R object can be saved to and read from disk, respectively, with `saveRDS()` and `readRDS().`  
@@ -546,6 +546,14 @@ plotMap(mxb, mxb_physical)
 dev.off()
 ----
 <1> Divide chromosome lengths by 5.
+
+. Save the genetic map object.
++
+[source,r]
+----
+copy(mxb) -> mxb_genetic
+saveRDS(mxb_genetic, file="mxb_genetic.Rds")
+----
 
 == Trait mapping
 
