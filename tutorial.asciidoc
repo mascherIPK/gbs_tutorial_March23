@@ -86,7 +86,7 @@ du -ch gbs_reads
 <1> To close `less`, press `q`.
 <2> The reads are in https://en.wikipedia.org/wiki/FASTQ_format[FASTQ format].
 
-. Take at a look at the phenotypes. There are two binary traits: lateral spikelet fertility (commonly referred to in barley as row type) and presence of barbs on the awns (awn roughness).
+. Take a look at the phenotypes. There are two. One is binary: lateral spikelet fertility (commonly referred to in barley as row type). The other is quantitative (plant height).
 +
 [source,sh]
 ----
@@ -579,7 +579,7 @@ dev.off()
 ----
 <1> Values for binary traits have to be zero or one.
 <2> Perform a single-QTL genome scan using the https://link.springer.com/article/10.1007/BF00223708[marker regression] (mr) method.
-https://www.rdocumentation.org/packages/qtl/versions/1.47-9/topics/scanone[scanone()] supports several other methods and models.
+https://www.rdocumentation.org/packages/qtl/versions/1.47-9/topics/scanone[scanone()] supports several other methods and models. The defaut is "normal" for a quantiative phenotype.
 <3> Plot the LOD (logarithm of the odds) scores along the genome.
 
 . Run a https://smcclatchy.github.io/mapping/06-perform-perm-test/[permutation test] to get p-values and a significance threshold.

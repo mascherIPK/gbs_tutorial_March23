@@ -758,7 +758,7 @@ zcat Morex.fastq.gz | less <span class="nt">-S</span> <i class="conum" data-valu
 </div>
 </li>
 <li>
-<p>Take at a look at the phenotypes. There are two binary traits: lateral spikelet fertility (commonly referred to in barley as row type) and presence of barbs on the awns (awn roughness).</p>
+<p>Take a look at the phenotypes. There are two. One is binary: lateral spikelet fertility (commonly referred to in barley as row type). The other is quantitative (plant height).</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh">less MxB_92_RILs_phenotypes.csv</code></pre>
@@ -1553,7 +1553,7 @@ If there are issues with the data, the genetic map will be off the mark.</p>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
 <td>Perform a single-QTL genome scan using the <a href="https://link.springer.com/article/10.1007/BF00223708">marker regression</a> (mr) method.
-<a href="https://www.rdocumentation.org/packages/qtl/versions/1.47-9/topics/scanone">scanone()</a> supports several other methods and models.</td>
+<a href="https://www.rdocumentation.org/packages/qtl/versions/1.47-9/topics/scanone">scanone()</a> supports several other methods and models. The defaut is "normal" for a quantiative phenotype.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
@@ -1629,7 +1629,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-29 08:32:13 +0200
+Last updated 2023-03-29 08:58:20 +0200
 </div>
 </div>
 </body>
