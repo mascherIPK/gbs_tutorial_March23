@@ -1092,9 +1092,17 @@ bcftools mpileup <span class="nt">--skip-indels</span> <span class="nt">--fasta-
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh">less MxB_92_RILs_phenotypes.csv
+bcftools query <span class="nt">-l</span> bcftools_SNP_calling_filtered.vcf | less <span class="nt">-S</span>
 bcftools query <span class="nt">-l</span> <span class="nv">$fvcf</span> | <span class="nb">cut</span> <span class="nt">-d</span> / <span class="nt">-f</span> 2 | <span class="nb">cut</span> <span class="nt">-d</span> <span class="nb">.</span> <span class="nt">-f</span> 1 <span class="o">&gt;</span> new_sample_names.txt
-bcftools reheader <span class="nt">-s</span> new_sample_names.txt <span class="nv">$fvcf</span> <span class="o">&gt;</span> bcftools_SNP_calling_filtered_newNames.vcf
-<span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'^##'</span> bcftools_SNP_calling_filtered_newNames.vcf | column <span class="nt">-t</span> | less <span class="nt">-S</span></code></pre>
+bcftools reheader <span class="nt">-s</span> new_sample_names.txt <span class="nv">$fvcf</span> <span class="o">&gt;</span> bcftools_SNP_calling_filtered_newNames.vcf</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Review the VCF file.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="sh"><span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'^##'</span> bcftools_SNP_calling_filtered_newNames.vcf | column <span class="nt">-t</span> | less <span class="nt">-S</span></code></pre>
 </div>
 </div>
 </li>
@@ -1605,7 +1613,7 @@ If there are issues with the data, the genetic map will be off the mark.</p>
 </div>
 </li>
 <li>
-<p>Plot the phenotypes against the genotypes at the most highly associated marker.</p>
+<p>Plot the phenotypes against the genotypes at the most highly associated marker (genotype x phenotpe, pxg).</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="r"><span class="n">rownames</span><span class="p">(</span><span class="nf">max</span><span class="p">(</span><span class="n">out</span><span class="p">))</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mar</span><span class="w">
@@ -1629,7 +1637,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-29 08:58:20 +0200
+Last updated 2023-03-29 09:04:54 +0200
 </div>
 </div>
 </body>

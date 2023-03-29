@@ -285,8 +285,15 @@ $filter --vcf $vcf --dphom 2 --dphet 4 --minmaf 0.2 --minpresent 0.9 --minhomp 0
 [source,sh]
 ----
 less MxB_92_RILs_phenotypes.csv
+bcftools query -l bcftools_SNP_calling_filtered.vcf | less -S
 bcftools query -l $fvcf | cut -d / -f 2 | cut -d . -f 1 > new_sample_names.txt
 bcftools reheader -s new_sample_names.txt $fvcf > bcftools_SNP_calling_filtered_newNames.vcf
+----
+
+. Review the VCF file.
++
+[source,sh]
+----
 grep -v '^##' bcftools_SNP_calling_filtered_newNames.vcf | column -t | less -S
 ----
 
@@ -612,7 +619,7 @@ dev.off()
 lodint(out, chr="2H", drop=2)
 ----
 
-. Plot the phenotypes against the genotypes at the most highly associated marker.
+. Plot the phenotypes against the genotypes at the most highly associated marker (genotype x phenotpe, pxg).
 +
 [source,r]
 ----
