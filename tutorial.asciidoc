@@ -405,7 +405,7 @@ dev.off() <2>
 <1> Open a PDF file to plot to. The file is created in the current working directory.
 <2> Close the file (switch *off* the plotting *device*). Don't forget to call `dev.off()`. Otherwise the PDF file will be empty or invalid.
 
-. Change the scale of the linkage map from base pairs to mega base pairs and plot the distribution of markers along chromosomes.
+. Change the scale of the linkage map from base pairs to megabase pairs and plot the distribution of markers along chromosomes.
 +
 [source,r]
 ----
