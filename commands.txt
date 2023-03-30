@@ -89,7 +89,8 @@ ls gbs_reads/*bam | sort > bam_list.txt
 tmux
 module load bcftools
 ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
-bamlist='bam_list.txt' # /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt
+#bamlist='bam_list.txt' 
+bamlist='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt' 
 vcf='bcftools_SNP_calling.vcf'
 
 bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 --annotate AD \
@@ -97,7 +98,8 @@ bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 
  | bcftools call --consensus-caller --variants-only --output $vcf
 
 filter='/filer/projekte/gbs_course/scripts/filter_vcf.zsh'
-vcf='bcftools_SNP_calling.vcf'
+#vcf='bcftools_SNP_calling.vcf'
+vcf='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bcftools_SNP_calling.vcf' 
 fvcf='bcftools_SNP_calling_filtered.vcf'
 
 $filter --vcf $vcf --dphom 2 --dphet 4 --minmaf 0.2 --minpresent 0.9 --minhomp 0.9 > $fvcf
