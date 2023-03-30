@@ -211,7 +211,7 @@ done 2> bwa.err <2>
 +
 IMPORTANT: If you forget to start bwa inside a tmux session, there is no way to prevent your job from aborting when you shutdown your laptop. Also without k5reauth programs cannot access filer resource after a maximum of ten hours.
 
-. Open a new terminal. Look at your jobs in the table of process (`top`).
+. Open a new terminal. Look at your jobs in the table of processes (`top`).
 +
 [source,sh]
 ----
