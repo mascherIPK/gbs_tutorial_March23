@@ -46,6 +46,7 @@ module list
 
 ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
 bwa shm $ref
+bwa shm -l
 
 zcat gbs_reads/Morex.fastq.gz | head -n 40000 > Morex_10k.fastq
 bwa mem $ref Morex_10k.fastq > Morex_10k.sam 
@@ -57,8 +58,11 @@ bwa mem $ref Morex_10k.fastq | samtools sort > Morex_10k.bam
 k5reauth tmux
 
 tmux ls
-tmux detach
-tmux attach
+tmux rename mapping
+tmux ls
+tmux detach 
+tmux ls
+tmux attach -t mapping
 
 ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
 for i in gbs_reads/*fastq.gz; do

@@ -4,6 +4,7 @@
 :icons: font
 :toc: left
 :important-caption: :heavy_exclamation_mark:
+:experimental:
 
 = Mapping traits in biparental populations with genotyping-by-sequencing data
 
@@ -152,6 +153,7 @@ module list
 ----
 ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta' // <1>
 bwa shm $ref
+bwa shm -l
 ----
 <1> We use the https://academic.oup.com/plcell/article/33/6/1888/6169005[MorexV3] reference genome sequence.
 
@@ -186,8 +188,11 @@ k5reauth tmux <1>
 [source,sh]
 ----
 tmux ls
+tmux rename mapping
+tmux ls
 tmux detach 
-tmux attach
+tmux ls
+tmux attach -t mapping
 ----
 
 . Map all samples.
@@ -198,9 +203,11 @@ ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.
 for i in gbs_reads/*fastq.gz; do
  name=`echo $i | cut -d . -f 1` // <1>
  bwa mem -t 4 $ref $i | samtools sort > $name.bam
-done 2> bwa.err
+done 2> bwa.err <2>
 ----
 <1> Strip the extension: Morex.fastq.gz become Morex.
+<2> To detach the tmux session, press kbd:[Ctrl-B] followed by kbd:[D]. 
+
 +
 IMPORTANT: If you forget to start bwa inside a tmux session, there is no way to prevent your job from aborting when you shutdown your laptop. Also without k5reauth programs cannot access filer resource after a maximum of ten hours.
 
@@ -239,8 +246,6 @@ rm -f tmp1 tmp2
 <1> To combine two lists with https://linux.die.net/man/1/join[join], both lists need to be sorted on the common ID column.
 <2> https://linux.die.net/man/1/column[column] is used to align columns.
 
-== Variant calling and filtration ==
-
 . Get a list of all BAM files.
 +
 [source,sh]
@@ -248,21 +253,33 @@ rm -f tmp1 tmp2
 ls gbs_reads/*bam | sort > bam_list.txt
 ----
 
-. Run the variant calling with https://samtools.github.io/bcftools/howtos/index.html[bcftools].
+== Variant calling and filtration ==
+
+. Open a new tmux session and load https://samtools.github.io/bcftools/howtos/index.html[bcftools].
 +
 [source,sh]
 ----
 tmux // <1>
+tmux rename variant_call
 module load bcftools
+----
+<1> The variant calling will run for some time, so run it inside `tmux`.
+
+. Run the variant calling.
++
+[source,sh]
+----
 ref='/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'
-bamlist='bam_list.txt' # /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt
+#bamlist='bam_list.txt' 
+bamlist='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt' <1>
+
 vcf='bcftools_SNP_calling.vcf' // <2>
 
 bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 --annotate AD \#<3>
  | bcftools view -i 'INFO/DP > 100' \#<4><5>
  | bcftools call --consensus-caller --variants-only --output $vcf
 ----
-<1> The variant calling will run for a couple of hours, so it's best to protect it with `tmux`.
+<1> List of pre-computed BAM files.
 <2> Output file in https://en.wikipedia.org/wiki/Variant_Call_Format[variant call format] (VCF). https://samtools.github.io/hts-specs/VCFv4.2.pdf[Here] are the specifications of the VCF format.
 <3> We ignore insertions and deletions (`--skip-indels`), consider only SNPs with a quality score no smaller than 20 (`--min-MQ 20`) and add allelic depth information (`--annotate AD`) for all genotype calls.
 <4> Remove sites with fewer than 100 reads across all samples. We are only interested in sites that have at least two supporting reads in nine tenths of the samples.
@@ -273,12 +290,14 @@ bcftools mpileup --skip-indels --fasta-ref $ref --bam-list $bamlist --min-MQ 20 
 [source, sh]
 ----
 filter='/filer/projekte/gbs_course/scripts/filter_vcf.zsh'
-vcf='bcftools_SNP_calling.vcf'
+#vcf='bcftools_SNP_calling.vcf'
+vcf='/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bcftools_SNP_calling.vcf' <1>
 fvcf='bcftools_SNP_calling_filtered.vcf'
 
-$filter --vcf $vcf --dphom 2 --dphet 4 --minmaf 0.2 --minpresent 0.9 --minhomp 0.9 > $fvcf // <1>
+$filter --vcf $vcf --dphom 2 --dphet 4 --minmaf 0.2 --minpresent 0.9 --minhomp 0.9 > $fvcf // <2>
 ----
-<1> We keep homozygous genotype calls if they have at least two supporting reads; heterozygous calls are accepted if they are supported by no fewer than four reads. SNPs with a minor allele frequency below 20 % or less than 90 % present calls or less than 90 % homozyous calls are discarded.
+<1> Path to pre-computed VCF file.
+<2> We keep homozygous genotype calls if they have at least two supporting reads; heterozygous calls are accepted if they are supported by no fewer than four reads. SNPs with a minor allele frequency below 20 % or less than 90 % present calls or less than 90 % homozyous calls are discarded.
 
 . Change the column names of the VCF files to match the row names in the phenotype table.
 +

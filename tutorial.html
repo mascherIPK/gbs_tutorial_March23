@@ -855,7 +855,8 @@ module list</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh"><span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span> <i class="conum" data-value="1"></i><b>(1)</b>
-bwa shm <span class="nv">$ref</span></code></pre>
+bwa shm <span class="nv">$ref</span>
+bwa shm <span class="nt">-l</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -915,8 +916,11 @@ samtools view Morex_10k.bam | less <span class="nt">-S</span></code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh">tmux <span class="nb">ls
+</span>tmux rename mapping
+tmux <span class="nb">ls
 </span>tmux detach
-tmux attach</code></pre>
+tmux <span class="nb">ls
+</span>tmux attach <span class="nt">-t</span> mapping</code></pre>
 </div>
 </div>
 </li>
@@ -928,7 +932,7 @@ tmux attach</code></pre>
 <span class="k">for </span>i <span class="k">in </span>gbs_reads/<span class="k">*</span>fastq.gz<span class="p">;</span> <span class="k">do
  </span><span class="nv">name</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$i</span> | <span class="nb">cut</span> <span class="nt">-d</span> <span class="nb">.</span> <span class="nt">-f</span> 1<span class="sb">`</span> <i class="conum" data-value="1"></i><b>(1)</b>
  bwa mem <span class="nt">-t</span> 4 <span class="nv">$ref</span> <span class="nv">$i</span> | samtools <span class="nb">sort</span> <span class="o">&gt;</span> <span class="nv">$name</span>.bam
-<span class="k">done </span>2&gt; bwa.err</code></pre>
+<span class="k">done </span>2&gt; bwa.err <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -936,6 +940,10 @@ tmux attach</code></pre>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
 <td>Strip the extension: Morex.fastq.gz become Morex.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>To detach the tmux session, press <kbd>Ctrl-B</kbd> followed by <kbd>D</kbd>.</td>
 </tr>
 </table>
 </div>
@@ -1010,6 +1018,14 @@ top <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2
 </table>
 </div>
 </li>
+<li>
+<p>Get a list of all BAM files.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="sh"><span class="nb">ls </span>gbs_reads/<span class="k">*</span>bam | <span class="nb">sort</span> <span class="o">&gt;</span> bam_list.txt</code></pre>
+</div>
+</div>
+</li>
 </ol>
 </div>
 </div>
@@ -1020,21 +1036,31 @@ top <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Get a list of all BAM files.</p>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nb">ls </span>gbs_reads/<span class="k">*</span>bam | <span class="nb">sort</span> <span class="o">&gt;</span> bam_list.txt</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>Run the variant calling with <a href="https://samtools.github.io/bcftools/howtos/index.html">bcftools</a>.</p>
+<p>Open a new tmux session and load <a href="https://samtools.github.io/bcftools/howtos/index.html">bcftools</a>.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh">tmux <i class="conum" data-value="1"></i><b>(1)</b>
-module load bcftools
-<span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span>
-<span class="nv">bamlist</span><span class="o">=</span><span class="s1">'bam_list.txt'</span> <span class="c"># /filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt</span>
+tmux rename variant_call
+module load bcftools</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The variant calling will run for some time, so run it inside <code>tmux</code>.</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Run the variant calling.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="sh"><span class="nv">ref</span><span class="o">=</span><span class="s1">'/filer/projekte/gbs_course/data/reference/Hordeum_vulgare_MorexV3_assembly.fasta'</span>
+<span class="c">#bamlist='bam_list.txt'</span>
+<span class="nv">bamlist</span><span class="o">=</span><span class="s1">'/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bam_list_Martin.txt'</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
 <span class="nv">vcf</span><span class="o">=</span><span class="s1">'bcftools_SNP_calling.vcf'</span> <i class="conum" data-value="2"></i><b>(2)</b>
 
 bcftools mpileup <span class="nt">--skip-indels</span> <span class="nt">--fasta-ref</span> <span class="nv">$ref</span> <span class="nt">--bam-list</span> <span class="nv">$bamlist</span> <span class="nt">--min-MQ</span> 20 <span class="nt">--annotate</span> AD <span class="se">\</span><i class="conum" data-value="3"></i><b>(3)</b>
@@ -1046,7 +1072,7 @@ bcftools mpileup <span class="nt">--skip-indels</span> <span class="nt">--fasta-
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>The variant calling will run for a couple of hours, so it&#8217;s best to protect it with <code>tmux</code>.</td>
+<td>List of pre-computed BAM files.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -1072,16 +1098,21 @@ bcftools mpileup <span class="nt">--skip-indels</span> <span class="nt">--fasta-
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sh"><span class="nv">filter</span><span class="o">=</span><span class="s1">'/filer/projekte/gbs_course/scripts/filter_vcf.zsh'</span>
-<span class="nv">vcf</span><span class="o">=</span><span class="s1">'bcftools_SNP_calling.vcf'</span>
+<span class="c">#vcf='bcftools_SNP_calling.vcf'</span>
+<span class="nv">vcf</span><span class="o">=</span><span class="s1">'/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/try_221216/bcftools_SNP_calling.vcf'</span> <i class="conum" data-value="1"></i><b>(1)</b>
 <span class="nv">fvcf</span><span class="o">=</span><span class="s1">'bcftools_SNP_calling_filtered.vcf'</span>
 
-<span class="nv">$filter</span> <span class="nt">--vcf</span> <span class="nv">$vcf</span> <span class="nt">--dphom</span> 2 <span class="nt">--dphet</span> 4 <span class="nt">--minmaf</span> 0.2 <span class="nt">--minpresent</span> 0.9 <span class="nt">--minhomp</span> 0.9 <span class="o">&gt;</span> <span class="nv">$fvcf</span> <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+<span class="nv">$filter</span> <span class="nt">--vcf</span> <span class="nv">$vcf</span> <span class="nt">--dphom</span> 2 <span class="nt">--dphet</span> 4 <span class="nt">--minmaf</span> 0.2 <span class="nt">--minpresent</span> 0.9 <span class="nt">--minhomp</span> 0.9 <span class="o">&gt;</span> <span class="nv">$fvcf</span> <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Path to pre-computed VCF file.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
 <td>We keep homozygous genotype calls if they have at least two supporting reads; heterozygous calls are accepted if they are supported by no fewer than four reads. SNPs with a minor allele frequency below 20 % or less than 90 % present calls or less than 90 % homozyous calls are discarded.</td>
 </tr>
 </table>
@@ -1637,7 +1668,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-29 09:04:54 +0200
+Last updated 2023-03-30 08:12:37 +0200
 </div>
 </div>
 </body>
