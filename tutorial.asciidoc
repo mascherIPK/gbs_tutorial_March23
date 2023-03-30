@@ -519,7 +519,7 @@ mstmap.cross(mxb, id="id") -> mxb
 summary.map(mxb)
 ----
 
-. Align the genetic to physical map.
+. Align the genetic to the physical map.
 +
 [source,r]
 ----
@@ -548,7 +548,7 @@ names(which(cc < 0)) -> flip.chr
 flip.order(mxb, flip.chr) -> mxb
 ----
 +
-. Plot the update alignment and graphical genotypes.
+. Plot the updated alignment and graphical genotypes.
 +
 [source,r]
 ----
