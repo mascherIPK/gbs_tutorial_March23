@@ -387,7 +387,7 @@ summary.map(mxb)
 [source,r]
 ----
 nind(mxb) # number of inviduals
-nchr(mxb) # number of chromosomes (actually linkage group)
+nchr(mxb) # number of chromosomes (actually linkage groups)
 totmar(mxb) # total number of markers
 nmar(mxb) # number of markers per chromosome
 nphe(mxb) # number of phenotypes
