@@ -998,8 +998,8 @@ top <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2
 <p>Combine the raw read counts and the mapping rates into one table.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nb">sort</span> <span class="nt">-h</span> fastq_read_counts.txt <span class="o">&gt;</span> tmp1 <i class="conum" data-value="1"></i><b>(1)</b>
-<span class="nb">sort</span> <span class="nt">-h</span> mapped_reads.txt <span class="o">&gt;</span> tmp2 <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight"><code data-lang="sh"><span class="nv">LC_ALL</span><span class="o">=</span>C <span class="nb">sort </span>fastq_read_counts.txt <span class="o">&gt;</span> tmp1 <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="nv">LC_ALL</span><span class="o">=</span>C <span class="nb">sort </span>mapped_reads.txt <span class="o">&gt;</span> tmp2 <i class="conum" data-value="1"></i><b>(1)</b>
 
 <span class="nb">join </span>tmp1 tmp2 | <span class="nb">awk</span> <span class="s1">'{print $0,$3/$2*100}'</span> | <span class="nb">sort</span> <span class="nt">-nk</span> 4 | column <span class="nt">-t</span> <span class="o">&gt;</span> mapping_stats.txt <i class="conum" data-value="2"></i><b>(2)</b>
 
@@ -1390,7 +1390,7 @@ If there are issues with the data, the genetic map will be off the mark.</p>
 </span><span class="n">dev.off</span><span class="p">()</span><span class="w">
 
 </span><span class="n">summary</span><span class="p">(</span><span class="n">cg</span><span class="p">,</span><span class="w"> </span><span class="n">thresh</span><span class="o">=</span><span class="m">0.9</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">dups</span><span class="w">
-</span><span class="n">subset</span><span class="p">(</span><span class="n">mxb</span><span class="p">,</span><span class="w"> </span><span class="n">ind</span><span class="o">=</span><span class="n">setdiff</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="w"> </span><span class="n">dups</span><span class="o">$</span><span class="n">inds2</span><span class="p">))</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb</span></code></pre>
+</span><span class="n">subset</span><span class="p">(</span><span class="n">mxb</span><span class="p">,</span><span class="w"> </span><span class="n">ind</span><span class="o">=</span><span class="n">setdiff</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="w"> </span><span class="n">dups</span><span class="o">$</span><span class="n">ind2</span><span class="p">))</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb</span></code></pre>
 </div>
 </div>
 </li>
@@ -1759,7 +1759,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-31 08:12:24 +0200
+Last updated 2023-03-31 11:16:24 +0200
 </div>
 </div>
 </body>

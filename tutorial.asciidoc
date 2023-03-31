@@ -236,8 +236,8 @@ done > mapped_reads.txt
 +
 [source,sh]
 ----
-sort -h fastq_read_counts.txt > tmp1 // <1>
-sort -h mapped_reads.txt > tmp2 // <1>
+LC_ALL=C sort fastq_read_counts.txt > tmp1 // <1>
+LC_ALL=C sort mapped_reads.txt > tmp2 // <1>
 
 join tmp1 tmp2 | awk '{print $0,$3/$2*100}' | sort -nk 4 | column -t > mapping_stats.txt // <2>
 
@@ -469,7 +469,7 @@ hist(cg[lower.tri(cg)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes"
 dev.off()
 
 summary(cg, thresh=0.9) -> dups
-subset(mxb, ind=setdiff(samples, dups$inds2)) -> mxb
+subset(mxb, ind=setdiff(samples, dups$ind2)) -> mxb
 ----
 
 . Have a look at the https://link.springer.com/article/10.1007/BF00292322[graphical genotypes].

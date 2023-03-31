@@ -79,8 +79,8 @@ for i in gbs_reads/*bam; do
  echo $name $count
 done > mapped_reads.txt
 
-sort -h fastq_read_counts.txt > tmp1 // <1>
-sort -h mapped_reads.txt > tmp2 // <1>
+LC_ALL=C sort fastq_read_counts.txt > tmp1 
+LC_ALL=C sort mapped_reads.txt > tmp2 
 
 join tmp1 tmp2 | awk '{print $0,$3/$2*100}' | sort -nk 4 | column -t > mapping_stats.txt // <2>
 
