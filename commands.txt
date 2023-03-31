@@ -258,4 +258,43 @@ pdf("plot_pxg.pdf")
 plotPXG(mxb, pheno.col=1, marker=mar)
 dev.off()
 
+.libPaths("/filer/projekte/gbs_course/Rlibs/4.1.1") 
+library(data.table)
+library(xlsx)
+library("qtl") 
+
+fread('MxB_92_RILs_phenotypes.csv')->p
+
+data.table(read.xlsx('/filer-dg/agruppen/dg6/mascher/DG/mxb_course_221201/prep/KASP_results_PGR23.xlsx', 1))->k
+setnames(k, "Samples", "id")
+k[grepl("F11$", id)][, id := sub("MBRIL-", "07-", sub("_F11$", "", id))][] -> k
+
+k[p, on="id"] -> m
+m[, .(row_type, plant_height, RAW1_Henry, VRS1_Henry, RAW1_ZsaZsa, VRS1_ZsaZsa, RAW1_Tania, VRS1_Tania, id)] -> m
+
+unique(m[, .(row_type, VRS1_Tania)])
+
+readRDS('mxb_genetic.Rds')
+
+data.frame(m[id %in% mxb$pheno$id]) -> mxb$pheno
+mxb
+colnames(mxb$pheno)
+
+pdf("plot_KASP.pdf")
+plotPheno(mxb, pheno.col=3)
+plotPheno(mxb, pheno.col=4)
+plotPheno(mxb, pheno.col=5)
+plotPheno(mxb, pheno.col=6)
+plotPheno(mxb, pheno.col=7)
+plotPheno(mxb, pheno.col=8)
+dev.off()
+
+mxb$pheno$VRS1_Tania <- ifelse(mxb$pheno$VRS1_Tania == "C", 0, 1)
+scanone(mxb, pheno.col=8, method="mr", model="binary") -> out
+
+pdf("plot_VRS1_Tania.pdf")
+plot(out)
+dev.off()
+
 quit()
+
