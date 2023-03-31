@@ -79,10 +79,14 @@ for i in gbs_reads/*bam; do
  echo $name $count
 done > mapped_reads.txt
 
-sort fastq_read_counts.txt > tmp1 
-sort mapped_reads.txt > tmp2 
-join tmp1 tmp2 | awk '{print $0,$3/$2*100}' | sort -nk 4 | column -t > mapping_stats.txt 
+sort -h fastq_read_counts.txt > tmp1 // <1>
+sort -h mapped_reads.txt > tmp2 // <1>
+
+join tmp1 tmp2 | awk '{print $0,$3/$2*100}' | sort -nk 4 | column -t > mapping_stats.txt // <2>
+
 rm -f tmp1 tmp2
+
+column -t mapping_stats.txt  | less -S
 
 ls gbs_reads/*bam | sort > bam_list.txt
 
@@ -223,6 +227,11 @@ dev.off()
 
 copy(mxb) -> mxb_genetic
 saveRDS(mxb_genetic, file="mxb_genetic.Rds")
+
+.libPaths("/filer/projekte/gbs_course/Rlibs/4.1.1") // <1>
+
+library("qtl") 
+readRDS("mxb_genetic.Rds") -> mxb
 
 calc.genoprob(mxb) -> mxb
 

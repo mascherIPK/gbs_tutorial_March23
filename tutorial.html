@@ -1550,7 +1550,7 @@ If there are issues with the data, the genetic map will be off the mark.</p>
 <p>Save the genetic map object.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="r"><span class="n">copy</span><span class="p">(</span><span class="n">mxb</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb_genetic</span><span class="w">
+<pre class="rouge highlight"><code data-lang="r"><span class="n">mxb</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb_genetic</span><span class="w">
 </span><span class="n">saveRDS</span><span class="p">(</span><span class="n">mxb_genetic</span><span class="p">,</span><span class="w"> </span><span class="n">file</span><span class="o">=</span><span class="s2">"mxb_genetic.Rds"</span><span class="p">)</span></code></pre>
 </div>
 </div>
@@ -1564,6 +1564,17 @@ If there are issues with the data, the genetic map will be off the mark.</p>
 <div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
+<li>
+<p>Load the required package and the data.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="r"><span class="n">.libPaths</span><span class="p">(</span><span class="s2">"/filer/projekte/gbs_course/Rlibs/4.1.1"</span><span class="p">)</span><span class="w"> <i class="conum" data-value="1"></i><b>(1)</b>
+
+</span><span class="n">library</span><span class="p">(</span><span class="s2">"qtl"</span><span class="p">)</span><span class="w">
+</span><span class="n">readRDS</span><span class="p">(</span><span class="s2">"mxb_genetic.Rds"</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mxb</span></code></pre>
+</div>
+</div>
+</li>
 <li>
 <p>Calculate <a href="https://smcclatchy.github.io/mapping/03-calc-genoprob/">genotype probabilities</a> conditional on the marker data.</p>
 <div class="listingblock">
@@ -1748,7 +1759,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-31 08:03:20 +0200
+Last updated 2023-03-31 08:12:24 +0200
 </div>
 </div>
 </body>

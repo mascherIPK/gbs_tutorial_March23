@@ -579,11 +579,21 @@ dev.off()
 +
 [source,r]
 ----
-copy(mxb) -> mxb_genetic
+mxb -> mxb_genetic
 saveRDS(mxb_genetic, file="mxb_genetic.Rds")
 ----
 
 == Trait mapping
+
+. Load the required package and the data.
++
+[source,r]
+----
+.libPaths("/filer/projekte/gbs_course/Rlibs/4.1.1") // <1>
+
+library("qtl") 
+readRDS("mxb_genetic.Rds") -> mxb
+----
 
 . Calculate https://smcclatchy.github.io/mapping/03-calc-genoprob/[genotype probabilities] conditional on the marker data.
 +
