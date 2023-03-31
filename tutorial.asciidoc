@@ -236,12 +236,14 @@ done > mapped_reads.txt
 +
 [source,sh]
 ----
-sort fastq_read_counts.txt > tmp1 // <1>
-sort mapped_reads.txt > tmp2 // <1>
+sort -h fastq_read_counts.txt > tmp1 // <1>
+sort -h mapped_reads.txt > tmp2 // <1>
 
 join tmp1 tmp2 | awk '{print $0,$3/$2*100}' | sort -nk 4 | column -t > mapping_stats.txt // <2>
 
 rm -f tmp1 tmp2
+
+column -t mapping_stats.txt  | less -S
 ----
 <1> To combine two lists with https://linux.die.net/man/1/join[join], both lists need to be sorted on the common ID column.
 <2> https://linux.die.net/man/1/column[column] is used to align columns.
@@ -655,7 +657,7 @@ GrainGenes offers https://wheat.pw.usda.gov[a web-based BLAST].
 
 == Mapping the KASP markers
 
-. Load the libraries
+. Load the required libraries.
 +
 [source,r]
 ----

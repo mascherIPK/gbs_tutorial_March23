@@ -998,12 +998,14 @@ top <span class="nt">-u</span> mascher <i class="conum" data-value="2"></i><b>(2
 <p>Combine the raw read counts and the mapping rates into one table.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sh"><span class="nb">sort </span>fastq_read_counts.txt <span class="o">&gt;</span> tmp1 <i class="conum" data-value="1"></i><b>(1)</b>
-<span class="nb">sort </span>mapped_reads.txt <span class="o">&gt;</span> tmp2 <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight"><code data-lang="sh"><span class="nb">sort</span> <span class="nt">-h</span> fastq_read_counts.txt <span class="o">&gt;</span> tmp1 <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="nb">sort</span> <span class="nt">-h</span> mapped_reads.txt <span class="o">&gt;</span> tmp2 <i class="conum" data-value="1"></i><b>(1)</b>
 
 <span class="nb">join </span>tmp1 tmp2 | <span class="nb">awk</span> <span class="s1">'{print $0,$3/$2*100}'</span> | <span class="nb">sort</span> <span class="nt">-nk</span> 4 | column <span class="nt">-t</span> <span class="o">&gt;</span> mapping_stats.txt <i class="conum" data-value="2"></i><b>(2)</b>
 
-<span class="nb">rm</span> <span class="nt">-f</span> tmp1 tmp2</code></pre>
+<span class="nb">rm</span> <span class="nt">-f</span> tmp1 tmp2
+
+column <span class="nt">-t</span> mapping_stats.txt  | less <span class="nt">-S</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1672,7 +1674,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Load the libraries</p>
+<p>Load the required libraries.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="r"><span class="n">.libPaths</span><span class="p">(</span><span class="s2">"/filer/projekte/gbs_course/Rlibs/4.1.1"</span><span class="p">)</span><span class="w">
@@ -1746,7 +1748,7 @@ GrainGenes offers <a href="https://wheat.pw.usda.gov">a web-based BLAST</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-31 07:56:26 +0200
+Last updated 2023-03-31 08:03:20 +0200
 </div>
 </div>
 </body>
